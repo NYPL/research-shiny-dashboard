@@ -8,3 +8,4 @@
 *.dat
 *.rda
 .DS_Store
+.Rhistory
