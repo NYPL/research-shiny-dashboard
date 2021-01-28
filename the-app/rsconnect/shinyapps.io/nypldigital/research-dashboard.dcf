@@ -1,0 +1,13 @@
+name: research-dashboard
+title: research-dashboard
+username:
+account: nypldigital
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3447687
+bundleId: 4064540
+url: https://nypldigital.shinyapps.io/research-dashboard/
+when: 1609941932.88801
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: app-2020-09-21.R|app-2020-10-20_16_22_55.R|update-data.sh|old-versions/app-2019-7-5__16-59-16.R|old-versions/app-2019-7-5.R

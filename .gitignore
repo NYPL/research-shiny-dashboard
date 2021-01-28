@@ -1,0 +1,10 @@
+*.xz
+*.gz
+*.zpaq
+*.datatable
+*.RData
+*.txt
+*.csv
+*.dat
+*.rda
+.DS_Store
