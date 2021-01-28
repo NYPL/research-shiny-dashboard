@@ -121,8 +121,7 @@ sidebar <- dashboardSidebar(
                selectInput("centeropt", "Center:",
                                      c("SASB" = "SASB",
                                        "Schomburg" = "Schomburg",
-                                       "LPA" = "LPA",
-                                       "SIBL" = "SIBL"
+                                       "LPA" = "LPA"
                                        )))),
     
     menuItem("Visits", tabName = "visitssuper", icon = icon("book-reader"),
@@ -779,6 +778,7 @@ server <- function(input, output) {
     setnames(tmp5, "total_circ", "Total Circ")
     setnames(tmp5, "controlled_circ", "Circ Per Item")
     setnames(tmp5, "percent_coll", "Percent of collection")
+    tmp5[center=="SIBL", center:="Business Library"]
     renderDT(tmp5)
   }
 
