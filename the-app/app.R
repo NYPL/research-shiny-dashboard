@@ -670,7 +670,7 @@ server <- function(input, output) {
   output$recapNewItemsValueBox <- renderValueBox({
     valueBox(
       prettyNum(7876464, big.mark=","),
-      "New accessible non-NYPL items through Shared Collection†",
+      "Newly accessible non-NYPL items available through Shared Collection†",
       color="red",
       icon=icon("exchange")
     )
@@ -679,7 +679,7 @@ server <- function(input, output) {
   output$recapNewBibsValueBox <- renderValueBox({
     valueBox(
       prettyNum(5496959, big.mark=","),
-      "New accessible non-NYPL titles through Shared Collection†",
+      "Newly accessible non-NYPL titles available through Shared Collection†",
       color="red",
       icon=icon("exchange")
     )
