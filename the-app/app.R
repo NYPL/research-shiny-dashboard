@@ -99,8 +99,11 @@ header <- dashboardHeader(
                taskItem(value=50, color="yellow",
                         HTML("Make ReCAP numbers not hard-coded")
                         ),
-               taskItem(value=10, color="red",
-                        HTML("Transfer this dashboard to a new domain")
+               taskItem(value=10, color="yellow",
+                        HTML("Pervasive tool-tips")
+                        ),
+               taskItem(value=10, color="yellow",
+                        HTML("Rollup 'place of publication' to 'country' level")
                         )
               )
 
@@ -352,7 +355,7 @@ body <- dashboardBody(
                        title = "Controls",
                        solidHeader = TRUE,
                        status="primary",
-                       sliderInput("pienumbiblevel", "Number of top bib level:", 2, 8, 3),
+                       sliderInput("pienumbiblevel", "Number of top bib levels:", 2, 8, 3),
                        width=3)
               )
             )
@@ -806,6 +809,8 @@ server <- function(input, output) {
     #   geom_line() +
     #   ggtitle(sprintf("%s circulation and materials consulted", theone))
     tmp <- nicecenterinfo[center==theone]
+    tmp[collection=="general", collection:="web management report"]
+    tmp[collection=="special", collection:="readers and materials consulted"]
     ggplot(tmp, aes(x=period, y=circ, group=collection, fill=collection, color=collection)) +
       geom_line() +
       ggtitle(sprintf("%s circulation and materials consulted", theone))
