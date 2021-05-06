@@ -5,8 +5,14 @@
 rm(list=ls())
 
 options(echo=TRUE)
-options(datatable.prettyprint.char=50)
 options(width = 80)
+options(warn=2)
+options(scipen=10)
+options(datatable.prettyprint.char=50)
+options(datatable.print.class=TRUE)
+options(datatable.print.keys=TRUE)
+options(datatable.fwrite.sep='\t')
+options(datatable.na.strings="")
 
 args <- commandArgs(trailingOnly=TRUE)
 
@@ -14,27 +20,21 @@ library(colorout)
 library(data.table)
 library(magrittr)
 library(stringr)
+library(libbib)
 library(BBmisc)
-
-source("~/.rix/tony-utils.R")
 # ------------------------------ #
 
 
-dat <- readRDS("../sierra-research-healed-joined.datatable")
+
+dat <- fread("~/Dropbox/NYPL/nypl-shadow-export/target/sierra-research-healed-joined-2021-04-08-revision-1.dat.gz")
 
 justincase <- copy(dat)
 
 dat[, .N]
+# 2021-04-08: 10,888,765
 # 2020-07-28: 10,895,556
 # ?         : 10,604,751
 
-# fix dates (will upstream this [TODO])
-dat[!is.na(pub_year) & pub_year > 2020, pub_year:=NA]
-dat[!is.na(pub_year) & pub_year < 1000, .(pub_year)]
-dat[!is.na(pub_year) & pub_year < 170, pub_year:=NA]
-dat[!is.na(pub_year) & pub_year==999, pub_year:=NA]
-dat[!is.na(pub_year) & pub_year < 1000 & pub_year > 201, pub_year:=NA]
-dat[!is.na(pub_year) & pub_year < 1000, pub_year:=as.integer(10*pub_year)]
 
 
 
@@ -53,6 +53,7 @@ dat[, .(itemcount=.N,
         fy18_circ=sum(fy18_checkouts, na.rm=TRUE),
         fy19_circ=sum(fy19_checkouts, na.rm=TRUE),
         fy20_circ=sum(fy20_checkouts, na.rm=TRUE),
+        fy21_circ=sum(fy21_checkouts, na.rm=TRUE),
         total_circ=sum(total_circ, na.rm=TRUE)),
    .(langcode, lang)]                               -> langinfo
 
@@ -69,7 +70,7 @@ langinfo[, percent_coll:=itemcount/sum(itemcount)]
 
 
 setnames(langinfo, "lang", "language")
-langinfo %>% fwrite("./langinfo.dat", sep="\t")
+langinfo %>% fwrite("./langinfo.dat")
 
 # normalization
 
@@ -81,11 +82,11 @@ langnorm[, total_circ:=normalize(total_circ, method="range")]
 langnorm[, controlled_circ:=normalize(controlled_circ, method="range")]
 langnorm
 
-keepcols(langnorm, c("langcode", "language", "itemcount",
-                     "date.div", "total_circ", "controlled_circ"))
+dt_keep_cols(langnorm, c("langcode", "language", "itemcount",
+                         "date.div", "total_circ", "controlled_circ"))
 
 
-langnorm %>% fwrite("./langnorm.dat", sep="\t")
+langnorm %>% fwrite("./langnorm.dat")
 
 
 # --------------------------------------------------------------- #
@@ -97,34 +98,10 @@ langnorm %>% fwrite("./langnorm.dat", sep="\t")
 # -----------              LC SUBJECT            -----------------#
 # --------------------------------------------------------------- #
 
-load("../../sysdata.rda")
-source("./lccall-subject.R")
 
-dat[, .N]
+dat[!is.na(lc_subject_class), first_letter:=get_lc_call_first_letter(lccall, allow.bare=TRUE)]
 
-dat[, lc_p:=get_lc_subject_letters(lccall)]
-
-dat[, .N, is.na(lc_p)]
-# is.na       N
-# <lgcl>   <int>
-# 1:   TRUE 6309247
-# 2:  FALSE 4586309
-#   OLD
-    #     is.na       N
-    #    <lgcl>   <int>
-    # 1:   TRUE 6243044
-    # 2:  FALSE 4361707
-
-
-dat[!is.na(lc_p), ]                           -> tmp
-
-secondlevelxwalk  <- readRDS("../../second-level.datatable")
-broadxwalk        <- readRDS("../../first-letter.datatable")
-setnames(tmp, "lc_p", "one_below")
-
-tmp[, one_below:=toupper(one_below)]
-tmp[, first_letter:=substr(one_below, 1, 1)]
-
+dat[!is.na(lc_subject_class), ] -> tmp
 
 setkey(tmp, "first_letter")
 
@@ -136,17 +113,16 @@ tmp[, .(itemcount=.N,
         fy18_circ=sum(fy18_checkouts, na.rm=TRUE),
         fy19_circ=sum(fy19_checkouts, na.rm=TRUE),
         fy20_circ=sum(fy20_checkouts, na.rm=TRUE),
+        fy21_circ=sum(fy21_checkouts, na.rm=TRUE),
         total_circ=sum(total_circ, na.rm=TRUE)),
-   first_letter]                              -> lc1info
+   .(first_letter, lc_subject_class)]                 -> lc1info
 
 lc1info
 
 lc1info[, controlled_circ:=total_circ/itemcount]
 lc1info[, percent_coll:=itemcount/sum(itemcount)]
 
-broadxwalk[lc1info]                           -> lc1info
-
-lc1info %>% fwrite("./lc1-info.dat", sep="\t")
+lc1info %>% fwrite("./lc1-info.dat")
 
 
 # normalization
@@ -159,15 +135,21 @@ lc1norm[, total_circ:=normalize(total_circ, method="range")]
 lc1norm[, controlled_circ:=normalize(controlled_circ, method="range")]
 lc1norm
 
-keepcols(lc1norm,  c("first_letter", "description", "itemcount",
-                     "date.div", "total_circ", "controlled_circ"))
+dt_keep_cols(lc1norm,  c("first_letter", "lc_subject_class", "itemcount",
+                         "date.div", "total_circ", "controlled_circ"))
 
-lc1norm %>% fwrite("./lc1norm.dat", sep="\t")
+lc1norm %>% fwrite("./lc1-norm.dat")
 
 
 ### lc2 now
 
-setkey(tmp, "one_below")
+dat[!is.na(lc_subject_subclass), all_letters:=get_all_lc_call_subject_letters(lccall, allow.bare=TRUE)]
+
+dat[!is.na(lc_subject_subclass), ] -> tmp
+
+
+setkey(tmp, "all_letters")
+
 tmp[, .(itemcount=.N,
         bibcount=uniqueN(bibid),
         date.div=mad(pub_year, na.rm=TRUE),
@@ -175,15 +157,15 @@ tmp[, .(itemcount=.N,
         fy18_circ=sum(fy18_checkouts, na.rm=TRUE),
         fy19_circ=sum(fy19_checkouts, na.rm=TRUE),
         fy20_circ=sum(fy20_checkouts, na.rm=TRUE),
+        fy21_circ=sum(fy21_checkouts, na.rm=TRUE),
         total_circ=sum(total_circ, na.rm=TRUE)),
-   one_below]                              -> lc2info
+   .(all_letters, lc_subject_subclass)]                   -> lc2info
+
 
 lc2info[, controlled_circ:=total_circ/itemcount]
 lc2info[, percent_coll:=itemcount/sum(itemcount)]
 
-secondlevelxwalk[lc2info]                 -> lc2info
-
-lc2info %>% fwrite("./lc2-info.dat", sep="\t")
+lc2info %>% fwrite("./lc2-info.dat")
 
 
 # normalization
@@ -196,9 +178,9 @@ lc2norm[, total_circ:=normalize(total_circ, method="range")]
 lc2norm[, controlled_circ:=normalize(controlled_circ, method="range")]
 lc2norm
 
-keepcols(lc2norm,  c("one_below", "description", "itemcount",
-                     "date.div", "total_circ", "controlled_circ"))
-lc2norm %>% fwrite("./lc2norm.dat", sep="\t")
+dt_keep_cols(lc2norm,  c("all_letters", "lc_subject_subclass", "itemcount",
+                         "date.div", "total_circ", "controlled_circ"))
+lc2norm %>% fwrite("./lc2-norm.dat", sep="\t")
 
 
 
@@ -218,20 +200,15 @@ dat[, .N, .(biblevel, mattype)]
 dat[, .N, biblevel][!is.na(biblevel) & biblevel!="---"] -> xbiblevel
 xbiblevel[, percent_coll:=N/sum(N)]
 xbiblevel
-xbiblevel %>% fwrite("./xbiblevel.dat", sep="\t")
+xbiblevel %>% fwrite("./xbiblevel.dat")
 
 
-dat[, .N, mattype][N>1000] -> xmattype
+dat[, .N, mattype][N>100] -> xmattype
 xmattype[, percent_coll:=N/sum(N)]
 xmattype
-xmattype %>% fwrite("./xmattype.dat", sep="\t")
+xmattype %>% fwrite("./xmattype.dat")
 
 
-
-
-
-
-rm(tmp)
 
 # --------------------------------------------------------------- #
 # -----------                COUNTRY             -----------------#
@@ -249,10 +226,11 @@ dat[, .(itemcount=.N,
         fy18_circ=sum(fy18_checkouts, na.rm=TRUE),
         fy19_circ=sum(fy19_checkouts, na.rm=TRUE),
         fy20_circ=sum(fy20_checkouts, na.rm=TRUE),
+        fy21_circ=sum(fy21_checkouts, na.rm=TRUE),
         total_circ=sum(total_circ, na.rm=TRUE)),
    .(countrycode, country)]                    -> countryinfo
 
-delcols(countryinfo, "countrycode")
+dt_del_cols(countryinfo, "countrycode")
 
 countryinfo[, .(itemcount=sum(itemcount),
                 bibcount=sum(bibcount),
@@ -261,34 +239,33 @@ countryinfo[, .(itemcount=sum(itemcount),
                 fy18_circ=sum(fy18_circ),
                 fy19_circ=sum(fy19_circ),
                 fy20_circ=sum(fy20_circ),
+                fy21_circ=sum(fy21_circ),
                 total_circ=sum(total_circ)),
   country]                                    -> countryinfo
 
 countryinfo[order(-itemcount)]
 
 countryinfo[, controlled_circ:=total_circ/itemcount]
-countryinfo[controlled_circ>2, controlled_circ:=.94]    # HACK
 countryinfo[, percent_coll:=itemcount/sum(itemcount)]
 
-countryinfo %>% fwrite("./countryinfo.dat", sep="\t")
+countryinfo %>% fwrite("./countryinfo.dat")
 
 
 
 # normalization
 
-countrynorm <- copy(countryinfo)
-
-countrynorm[, itemcount:=normalize(itemcount, method="range")]
-countrynorm[, date.div:=normalize(date.div, method="range")]
-countrynorm[, total_circ:=normalize(total_circ, method="range")]
-countrynorm[, controlled_circ:=normalize(controlled_circ, method="range")]
-countrynorm
-
-keepcols(countrynorm,  c("country", "description", "itemcount",
-                     "date.div", "total_circ", "controlled_circ"))
-countrynorm %>% fwrite("./countrynorm.dat", sep="\t")
-
-
+# countrynorm <- copy(countryinfo)
+#
+# countrynorm[, itemcount:=normalize(itemcount, method="range")]
+# countrynorm[, date.div:=normalize(date.div, method="range")]
+# countrynorm[, total_circ:=normalize(total_circ, method="range")]
+# countrynorm[controlled_circ>2, controlled_circ:=1]    # HACK
+# countrynorm[, controlled_circ:=normalize(controlled_circ, method="range")]
+# countrynorm
+#
+# dt_keep_cols(countrynorm,  c("country", "itemcount", "date.div",
+#                              "total_circ", "controlled_circ"))
+# countrynorm %>% fwrite("./countrynorm.dat")
 
 
 
@@ -297,7 +274,7 @@ countrynorm %>% fwrite("./countrynorm.dat", sep="\t")
 # -----------            CENTER/LOCATION         -----------------#
 # --------------------------------------------------------------- #
 
-locxwalk <- readRDS("../../locationxwalk.datatable")
+locxwalk <- readRDS("../../crosswalks/locationxwalk.datatable")
 
 setkey(dat, "item_location_code")
 
@@ -323,7 +300,7 @@ tmp[, .(num_items =sum(num_items),
 centerinfo[, percent_coll:=num_items/sum(num_items)]
 centerinfo[, controlled_circ:=total_circ/num_items]
 
-centerinfo %>% fwrite("./centerinfo.dat", sep="\t")
+centerinfo %>% fwrite("./centerinfo.dat")
 
 
 
@@ -385,24 +362,13 @@ add.to.build.a.count("gen_info", "fy20circ",
                      sprintf("%d", dat[, sum(fy20_checkouts, na.rm=TRUE)]),
                      "Total check-outs in FY20")
 
+add.to.build.a.count("gen_info", "fy21circ",
+                     sprintf("%d", dat[, sum(fy21_checkouts, na.rm=TRUE)]),
+                     "Total check-outs in FY21")
 
-build.a.count %>% fwrite("./gen-info.dat", sep="\t")
+build.a.count <- build.a.count[dacat!=""]
 
-
-
-
-
-
-# --------------------------------------------------------------- #
-# -----------           ALL DATA (EXCERPT)       -----------------#
-# -----------           ALL DATA (EXCERPT)       -----------------#
-# --------------------------------------------------------------- #
-
-short <- copy(dat)
-
-
-
-
+build.a.count %>% fwrite("./gen-info.dat")
 
 
 

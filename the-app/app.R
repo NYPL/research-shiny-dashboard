@@ -40,7 +40,7 @@ lc1info[, short_desc:=ifelse(str_length(lc1info[, description])>20,
                              sprintf("(%s) %s",
                                      lc1info[, first_letter],
                                      lc1info[, description]))]
-lc1norm <- fread("./data/lc1norm.dat", sep="\t", header=TRUE)
+lc1norm <- fread("./data/lc1-norm.dat", sep="\t", header=TRUE)
 lc1norm[, short_desc:=ifelse(str_length(lc1norm[, description])>20,
                              sprintf("(%s) %s...",
                                      lc1norm[, first_letter],
@@ -49,7 +49,7 @@ lc1norm[, short_desc:=ifelse(str_length(lc1norm[, description])>20,
                                      lc1norm[, first_letter],
                                      lc1norm[, description]))]
 lc2info <- fread("./data/lc2-info.dat", sep="\t", header=TRUE)
-lc2norm <- fread("./data/lc2norm.dat", sep="\t", header=TRUE)
+lc2norm <- fread("./data/lc2-norm.dat", sep="\t", header=TRUE)
 
 edddaily  <- fread("./data/edd-daily.dat", sep='\t', header=TRUE)
 eddweekly <- fread("./data/edd-weekly.dat", sep='\t', header=TRUE)
