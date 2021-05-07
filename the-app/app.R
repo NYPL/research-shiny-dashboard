@@ -17,11 +17,15 @@ options(scipen=20)
 #####################################
 # set up
 
-nicecenterinfo <- fread("./data/nice-wmr-and-lair-quarterly-stats.txt", sep="\t", header=TRUE)
+# - will be deprecated
+nicecenterinfo <- fread("./data/nice-wmr-and-lair-quarterly-stats.txt",
+                        sep="\t", header=TRUE)
 setorder(nicecenterinfo, FY, quarter)
-nicecenterinfo[, period:=nicecenterinfo[, sprintf("FY%s-Q%d", as.character(FY), quarter)]]
+nicecenterinfo[, period:=nicecenterinfo[, sprintf("FY%s-Q%d", as.character(FY),
+                                                  quarter)]]
 nicetotals <- nicecenterinfo[, .(totals=sum(circ, na.rm=TRUE)), .(FY, quarter)]
 niceyeartotals <- nicetotals[, sum(totals), FY]
+
 visitinfo <- fread("./data/visits-by-quarter.dat", sep="\t", header=TRUE)
 
 geninfo <- fread("./data/gen-info.dat", sep="\t", header=TRUE)
@@ -32,32 +36,36 @@ mattypeinfo <- fread("./data/xmattype.dat", sep="\t", header=TRUE)
 biblevelinfo <- fread("./data/xbiblevel.dat", sep="\t", header=TRUE)
 countriesinfo  <- fread("./data/countryinfo.dat", sep="\t", header=TRUE)
 locationinfo <- fread("./data/centerinfo.dat", sep="\t", header=TRUE)
+
 lc1info <- fread("./data/lc1-info.dat", sep="\t", header=TRUE)
-lc1info[, short_desc:=ifelse(str_length(lc1info[, description])>20,
+lc1info[, short_desc:=ifelse(str_length(lc1info[, lc_subject_class])>20,
                              sprintf("(%s) %s...",
                                      lc1info[, first_letter],
-                                     str_sub(lc1info[, description], 1, 17)),
+                                     str_sub(lc1info[, lc_subject_class], 1, 17)),
                              sprintf("(%s) %s",
                                      lc1info[, first_letter],
-                                     lc1info[, description]))]
+                                     lc1info[, lc_subject_class]))]
 lc1norm <- fread("./data/lc1-norm.dat", sep="\t", header=TRUE)
-lc1norm[, short_desc:=ifelse(str_length(lc1norm[, description])>20,
+lc1norm[, short_desc:=ifelse(str_length(lc1norm[, lc_subject_class])>20,
                              sprintf("(%s) %s...",
                                      lc1norm[, first_letter],
-                                     str_sub(lc1norm[, description], 1, 17)),
+                                     str_sub(lc1norm[, lc_subject_class], 1, 17)),
                              sprintf("(%s) %s",
                                      lc1norm[, first_letter],
-                                     lc1norm[, description]))]
+                                     lc1norm[, lc_subject_class]))]
 lc2info <- fread("./data/lc2-info.dat", sep="\t", header=TRUE)
-lc2norm <- fread("./data/lc2-norm.dat", sep="\t", header=TRUE)
+# lc2norm <- fread("./data/lc2-norm.dat", sep="\t", header=TRUE)
 
 edddaily  <- fread("./data/edd-daily.dat", sep='\t', header=TRUE)
 eddweekly <- fread("./data/edd-weekly.dat", sep='\t', header=TRUE)
 setnames(edddaily, "xdate", "thetime")
-# setnames(eddweekly, "theweek", "thetime")
 setnames(eddweekly, "xdate", "thetime")
+eddlang <- fread("./data/edd-language-breakdown.dat", sep="\t", header=TRUE)
+eddlc1 <- fread("./data/edd-subject-classification-breakdown.dat",
+                sep="\t", header=TRUE)
 
-#ALL <- fread("./data/")
+# TODO: ADD THE LETTERS AND RENAME ALL LETTERS
+
 
 add.perc.to.names <- function(twocoldt){
   tmp <- as.vector(unlist(100 * (twocoldt[, 2] / sum(twocoldt[, 2]))))
@@ -74,14 +82,6 @@ compress <- function(twocoldt, n){
   twocoldt[n, 2] <- sum(twocoldt[n:.N, 2])
   almost <- rbind(one, twocoldt[n,])
   return(add.perc.to.names(almost))
-}
-
-
-make.matrix.result <- function(thelabels, themat, coeffs){
-  coeffmat <- matrix(coeffs, ncol=1)
-  res <- themat %*% coeffmat
-  return(data.table(thelabel=thelabels,
-                    results=res))
 }
 
 
@@ -104,6 +104,12 @@ header <- dashboardHeader(
                         ),
                taskItem(value=10, color="yellow",
                         HTML("Rollup 'place of publication' to 'country' level")
+                        ),
+               taskItem(value=10, color="yellow",
+                        HTML("Scan and Deliver UI improvements")
+                        ),
+               taskItem(value=10, color="yellow",
+                        HTML('Disambiguate "Scan and Deliver" and "EDD" in code')
                         )
               )
 
@@ -154,6 +160,12 @@ sidebar <- dashboardSidebar(
              menuSubItem("Explorer", tabName="lc1subexplorer", icon=icon("search-plus"))
     ),
     
+    menuItem("LC subject (II)", tabName = "lc2super", icon = icon("wheelchair"),
+             menuSubItem("Raw data table", tabName="lc2subraw", icon=icon("table"))
+             #menuSubItem("Pie chart", tabName="lc1subpie", icon=icon("pie-chart")),
+             #menuSubItem("Explorer", tabName="lc1subexplorer", icon=icon("search-plus"))
+    ),
+    
     menuItem("EDD", tabName = "eddrtab", icon = icon("bolt"),
              menuSubItem("Scan and deliver", tabName="sanddtab", icon=icon("truck")),
              menuSubItem(icon=NULL,
@@ -175,7 +187,12 @@ sidebar <- dashboardSidebar(
                                      c("None" = "None",
                                        "Yes" = "Yes"
                                      ))
-             )
+             ),
+             
+             menuSubItem("Scan and deliver (language)", tabName="sanddlangtab",
+                         icon=icon("truck")),
+             menuSubItem("Scan and deliver (LC Subjects)", tabName="sanddlc1tab",
+                         icon=icon("truck"))
     ),
     
     menuItem("Aeon", tabName = "aeontab", icon = icon("palette"),
@@ -184,6 +201,11 @@ sidebar <- dashboardSidebar(
     
   )
 )
+
+
+
+
+
 
 body <- dashboardBody(
   tabItems(
@@ -213,7 +235,7 @@ body <- dashboardBody(
               column(12,
                      box(title="footnotes",
                          collapsible=TRUE,
-                          "*    based on a Sierra database export performed on 2020-05. Circulations are only for barcoded Sierra items and only reflect circulations since Sierra/Millenium",
+                          "*    based on a Sierra database export performed on 2021-04. Circulations are only for barcoded Sierra items and only reflect circulations since Sierra/Millenium",
                           br(),
                           "*    does not include shared collection items from other institutions",
                           br(),
@@ -224,8 +246,13 @@ body <- dashboardBody(
                           "‡    This includes all Sierra checkouts (general collections) and special collection usage as reported on the Web Management Report and the Cloud Apps Portal, respectively",
                           width=7)))
     ),
+  # --------------------------------------------------------- #
+    
 
-    # LOCATION TAB
+
+  # --------------------------------------------------------- #
+  # Locations
+  # --------------------------------------------------------- #
     tabItem(tabName = "locationgen",
             h1("Research Centers"),
             downloadButton("downloadcenterrawdata", "Download"),
@@ -255,14 +282,21 @@ body <- dashboardBody(
               )
             )
     ),
+  # --------------------------------------------------------- #
     
+
+
+  # --------------------------------------------------------- #
+  # Circulations
+  # --------------------------------------------------------- #
     tabItem(tabName = "circsuboverview",
             h1("Circulation overview"),
             br(),
             fluidRow(
               valueBoxOutput("fy18checkoutsValueBox2"),
               valueBoxOutput("fy19checkoutsValueBox2"),
-              valueBoxOutput("fy20checkoutsValueBox2")
+              valueBoxOutput("fy20checkoutsValueBox2"),
+              valueBoxOutput("fy21checkoutsValueBox2")
             ),
             br(), br(), br(), br(),
             br(), br(), br(), br(),
@@ -286,8 +320,13 @@ body <- dashboardBody(
                        status="primary",
                        plotOutput("totalquarterlycircs"), width=12))),
     ),
+  # --------------------------------------------------------- #
     
 
+
+  # --------------------------------------------------------- #
+  # Circ by center
+  # --------------------------------------------------------- #
     tabItem(tabName = "circbycenter",
             h1("Circulation by research center"),
             br(),
@@ -303,7 +342,13 @@ body <- dashboardBody(
             )
     ),
 
+  # --------------------------------------------------------- #
     
+
+
+  # --------------------------------------------------------- #
+  # Visits
+  # --------------------------------------------------------- #
     tabItem(tabName = "visitssuboverview",
             h1("Visits overview"),
             br(),
@@ -318,10 +363,13 @@ body <- dashboardBody(
               )
             )
     ),
+  # --------------------------------------------------------- #
+    
 
 
-
-    #  BIB LEVEL TAB
+  # --------------------------------------------------------- #
+  # Bib level
+  # --------------------------------------------------------- #
     tabItem(tabName = "biblevelsubraw",
             h1("Bib Level"),
             downloadButton("downloadbiblevelrawdata", "Download"),
@@ -361,9 +409,13 @@ body <- dashboardBody(
             )
     ),
 
+  # --------------------------------------------------------- #
+    
 
 
-    #  MATERIAL TYPE TAB
+  # --------------------------------------------------------- #
+  # Material type
+  # --------------------------------------------------------- #
     tabItem(tabName = "mattypesubraw",
             h1("Material Type"),
             downloadButton("downloadmattyperawdata", "Download"),
@@ -403,9 +455,13 @@ body <- dashboardBody(
               )
             )
     ),
+  # --------------------------------------------------------- #
+    
 
 
-    # LANGUAGE TAB
+  # --------------------------------------------------------- #
+  # Language
+  # --------------------------------------------------------- #
     tabItem(tabName = "languagesubraw",
             h1("Language"),
             downloadButton("downloadlangrawdata", "Download"),
@@ -480,11 +536,13 @@ body <- dashboardBody(
         )
       )
     ),
+  # --------------------------------------------------------- #
+    
 
 
-
-
-    # PLACE OF PUBLICATION TAB
+  # --------------------------------------------------------- #
+  # Place of publication
+  # --------------------------------------------------------- #
     tabItem(tabName = "pubplacesubraw",
             h1("Place of publication"),
             downloadButton("downloadpubplacerawdata", "Download"),
@@ -523,29 +581,15 @@ body <- dashboardBody(
               )
             )
     ),
+  # --------------------------------------------------------- #
     
-    
-    tabItem(tabName = "sanddtab",
-            h1("Scan and deliver"),
-            br(),
-            fluidRow(
-              column(12,
-                     box(
-                       title="Number of filled requests (from Sierra)",
-                       solidHeader = TRUE,
-                       status="primary",
-                       collapsible = TRUE,
-                       plotOutput("sanddplot"), width=12)
-              )
-            )
-    ),
 
 
-
-
-    # LC1 TAB
+  # --------------------------------------------------------- #
+  # Library of congress subject classifications
+  # --------------------------------------------------------- #
     tabItem(tabName = "lc1subraw",
-            h1("Library of Congress subject categories (broad)"),
+            h1("Library of Congress subject classifications"),
             downloadButton("downloadlc1rawdata", "Download"),
             br(),
             br(),
@@ -563,7 +607,7 @@ body <- dashboardBody(
     ),
 
     tabItem(tabName = "lc1subpie",
-            h1("Library of Congress subject categories (broad)"),
+            h1("Library of Congress subject classifications"),
             br(),
             fluidRow(
               column(12,
@@ -585,7 +629,7 @@ body <- dashboardBody(
     ),
 
     tabItem(tabName = "lc1subexplorer",
-            h1("Library of Congress subject categories (broad) [explorer]"),
+            h1("Library of Congress subject classifications [explorer]"),
             br(),
             fluidRow(
               column(width=9,
@@ -617,7 +661,92 @@ body <- dashboardBody(
                      )
               )
             )
+    ),
+  # --------------------------------------------------------- #
+    
+
+
+  # --------------------------------------------------------- #
+  # Library of congress subject subclassifications
+  # --------------------------------------------------------- #
+    tabItem(tabName = "lc2subraw",
+            h1("Library of Congress subject subclassifications"),
+            downloadButton("downloadlc2rawdata", "Download"),
+            br(),
+            br(),
+            fluidRow(
+              column(12,
+                     box(
+                       title="Tabular info",
+                       solidHeader = TRUE,
+                       status="primary",
+                       DTOutput('lc2table'),
+                       width=12
+                     )
+              )
+            )
+    ),
+  # --------------------------------------------------------- #
+  
+
+  
+  # --------------------------------------------------------- #
+  # Scan and deliver
+  # --------------------------------------------------------- #
+    tabItem(tabName = "sanddtab",
+            h1("Scan and deliver"),
+            br(),
+            fluidRow(
+              column(12,
+                     box(
+                       title="Number of filled requests (from Sierra)",
+                       solidHeader = TRUE,
+                       status="primary",
+                       collapsible = TRUE,
+                       plotOutput("sanddplot"), width=12)
+              )
+            )
+    ),
+  
+    tabItem(tabName = "sanddlangtab",
+            h1("Scan and deliver (language breakdown)"),
+            downloadButton("downloadsanddlangrawdata", "Download"),
+            br(),
+            br(),
+            fluidRow(
+              column(12,
+                     box(
+                       title="Tabular info",
+                       solidHeader = TRUE,
+                       status="primary",
+                       collapsible = TRUE,
+                       DTOutput('sanddlangtable'),
+                       width=12
+                     )
+              )
+            )
+    ),
+    
+    tabItem(tabName = "sanddlc1tab",
+            h1("Scan and deliver (LC Subject Class breakdown)"),
+            downloadButton("downloadsanddlc1rawdata", "Download"),
+            br(),
+            br(),
+            fluidRow(
+              column(12,
+                     box(
+                       title="Tabular info",
+                       solidHeader = TRUE,
+                       status="primary",
+                       collapsible = TRUE,
+                       DTOutput('sanddlc1table'),
+                       width=12
+                     )
+              )
+            )
     )
+  # --------------------------------------------------------- #
+
 
 
 
@@ -653,7 +782,7 @@ server <- function(input, output) {
   # --------------------------------------------------------- #
   output$totalItemsValueBox <- renderValueBox({
     valueBox(
-      prettyNum(as.integer(geninfo[4, 3]), big.mark=","),
+      prettyNum(as.integer(geninfo[dakey=="num_uniq_items", davalue]), big.mark=","),
       "Total barcoded items in collection*",
       color="purple",
       icon=icon("book")
@@ -662,7 +791,7 @@ server <- function(input, output) {
 
   output$totalBibsValueBox <- renderValueBox({
     valueBox(
-      prettyNum(as.integer(geninfo[3, 3]), big.mark=","),
+      prettyNum(as.integer(geninfo[dakey=="num_uniq_bibs", davalue]), big.mark=","),
       "Total number of titles in collection*",
       color="purple",
       icon=icon("book")
@@ -801,13 +930,6 @@ server <- function(input, output) {
 
   output$quarterlycircbycenter <- renderPlot({
     theone <- input$centeropt
-    # tmp <- paulcenterinfo[, .SD, .SDcols=names(paulcenterinfo) %like% sprintf("^%s|period", theone)]
-    # tmp <- melt(tmp, id.vars="period")
-    # tmp <- tmp[!is.na(value)]
-    # tmp[, metric:=str_replace_all(str_replace(variable, sprintf("%s_", theone), ""), "_", " ")]
-    # ggplot(tmp, aes(x=period, y=value, group=metric, fill=metric, color=metric)) +
-    #   geom_line() +
-    #   ggtitle(sprintf("%s circulation and materials consulted", theone))
     tmp <- nicecenterinfo[center==theone]
     tmp[collection=="general", collection:="web management report"]
     tmp[collection=="special", collection:="readers and materials consulted"]
@@ -894,31 +1016,28 @@ server <- function(input, output) {
     tmp <- copy(langinfo)
     setorder(langinfo, -itemcount)
     setorder(tmp, -itemcount)
-    tmp[, controlled_circ:=sprintf("%.3f", controlled_circ)]
-    tmp[, percent_coll:=sprintf("%.3f%%", 100*percent_coll)]
+    tmp[, controlled_circ:=sprintf("%.2f", controlled_circ)]
+    tmp[, percent_coll:=sprintf("%.2f%%", 100*percent_coll)]
     tmp[, itemcount:=prettyNum(itemcount, big.mark=",")]
     tmp[, bibcount:=prettyNum(bibcount, big.mark=",")]
     tmp[, fy17_circ:=prettyNum(fy17_circ, big.mark=",")]
     tmp[, fy18_circ:=prettyNum(fy18_circ, big.mark=",")]
+    tmp[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
+    tmp[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
+    tmp[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
     tmp[, total_circ:=prettyNum(total_circ, big.mark=",")]
     setnames(tmp, "itemcount", "Item Count")
     setnames(tmp, "bibcount", "Bib Count")
     setnames(tmp, "date.div", "Date Spread")
     setnames(tmp, "fy17_circ", "FY17 Circ")
     setnames(tmp, "fy18_circ", "FY18 Circ")
+    setnames(tmp, "fy19_circ", "FY19 Circ")
+    setnames(tmp, "fy20_circ", "FY20 Circ")
+    setnames(tmp, "fy21_circ", "FY21 Circ")
     setnames(tmp, "total_circ", "Total Circ")
     setnames(tmp, "controlled_circ", "Circ Per Item")
     setnames(tmp, "percent_coll", "Percent of collection")
-    renderDT(tmp,
-             options=list(
-    #           initComplete = JS("
-    #function(settings, json) {
-    #  $(this.api().table().header()).css({
-    #    'background-color': '#000',
-    #    'color': '#fff'
-    #  });
-    #}")
-             ))
+    renderDT(tmp)
   }
 
   output$downloadlangrawdata <- downloadHandler(
@@ -956,24 +1075,30 @@ server <- function(input, output) {
 
 
   # --------------------------------------------------------- #
-  # COUNTRIES                                                 #
+  # Place of publication                                      #
   # --------------------------------------------------------- #
   output$countriestable <- {
     tmp8 <- copy(countriesinfo)
     setorder(countriesinfo, -itemcount)
     setorder(tmp8, -itemcount)
-    tmp8[, controlled_circ:=sprintf("%.3f", controlled_circ)]
-    tmp8[, percent_coll:=sprintf("%.3f%%", 100*percent_coll)]
+    tmp8[, controlled_circ:=sprintf("%.2f", controlled_circ)]
+    tmp8[, percent_coll:=sprintf("%.2f%%", 100*percent_coll)]
     tmp8[, itemcount:=prettyNum(itemcount, big.mark=",")]
     tmp8[, bibcount:=prettyNum(bibcount, big.mark=",")]
     tmp8[, fy17_circ:=prettyNum(fy17_circ, big.mark=",")]
     tmp8[, fy18_circ:=prettyNum(fy18_circ, big.mark=",")]
+    tmp8[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
+    tmp8[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
+    tmp8[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
     tmp8[, total_circ:=prettyNum(total_circ, big.mark=",")]
     setnames(tmp8, "itemcount", "Item Count")
     setnames(tmp8, "bibcount", "Bib Count")
     setnames(tmp8, "date.div", "Date Spread")
     setnames(tmp8, "fy17_circ", "FY17 Circ")
     setnames(tmp8, "fy18_circ", "FY18 Circ")
+    setnames(tmp8, "fy19_circ", "FY19 Circ")
+    setnames(tmp8, "fy20_circ", "FY20 Circ")
+    setnames(tmp8, "fy21_circ", "FY21 Circ")
     setnames(tmp8, "total_circ", "Total Circ")
     setnames(tmp8, "controlled_circ", "Circ Per Item")
     setnames(tmp8, "percent_coll", "Percent of collection")
@@ -996,51 +1121,34 @@ server <- function(input, output) {
 
   
   # --------------------------------------------------------- #
-  # EDD                                                       #
-  # --------------------------------------------------------- #
-  
-  output$sanddplot <- renderPlot({
-    
-    tmpdata <- edddaily
-    if(input$sanddfreqopt=="Weekly")
-      tmpdata <- eddweekly
-    tmpfn <- ifelse(input$sanddsmoothp=="Yes", geom_smooth, geom_line)
-    tmpxlab <- ifelse(input$sanddfreqopt=="Weekly", "week", "date")
-    
-    ggplot(tmpdata[center==input$sanddcenteropt], aes(x=thetime, y=total)) +
-      tmpfn(size=1.4, color="blue", alpha=0.6) +
-      xlab(tmpxlab)
-  })
-  # --------------------------------------------------------- #
-  
-
-
-
-  # --------------------------------------------------------- #
   # LC 1                                                      #
   # --------------------------------------------------------- #
   output$lc1table <- {
     tmp7 <- copy(lc1info)
-    #print(names(tmp7))
-    setorder(lc1info, -itemcount)
     setorder(tmp7, -itemcount)
-    tmp7[, controlled_circ:=sprintf("%.3f", controlled_circ)]
-    tmp7[, percent_coll:=sprintf("%.3f%%", 100*percent_coll)]
+    tmp7[, controlled_circ:=sprintf("%.2f", controlled_circ)]
+    tmp7[, percent_coll:=sprintf("%.2f%%", 100*percent_coll)]
     tmp7[, itemcount:=prettyNum(itemcount, big.mark=",")]
     tmp7[, bibcount:=prettyNum(bibcount, big.mark=",")]
     tmp7[, fy17_circ:=prettyNum(fy17_circ, big.mark=",")]
     tmp7[, fy18_circ:=prettyNum(fy18_circ, big.mark=",")]
+    tmp7[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
+    tmp7[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
+    tmp7[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
     tmp7[, total_circ:=prettyNum(total_circ, big.mark=",")]
     setnames(tmp7, "itemcount", "Item Count")
     setnames(tmp7, "bibcount", "Bib Count")
     setnames(tmp7, "date.div", "Date Spread")
     setnames(tmp7, "fy17_circ", "FY17 Circ")
     setnames(tmp7, "fy18_circ", "FY18 Circ")
+    setnames(tmp7, "fy19_circ", "FY19 Circ")
+    setnames(tmp7, "fy20_circ", "FY20 Circ")
+    setnames(tmp7, "fy21_circ", "FY21 Circ")
     setnames(tmp7, "total_circ", "Total Circ")
     setnames(tmp7, "controlled_circ", "Circ Per Item")
     setnames(tmp7, "percent_coll", "Percent of collection")
     setnames(tmp7, "first_letter", "Letter")
-    setnames(tmp7, "description", "Subject")
+    setnames(tmp7, "lc_subject_class", "LC Subject Class")
     tmp7[, short_desc:=NULL]
     renderDT(tmp7)
   }
@@ -1074,7 +1182,93 @@ server <- function(input, output) {
   })
   # --------------------------------------------------------- #
 
+  
+  # --------------------------------------------------------- #
+  # LC 2                                                      #
+  # --------------------------------------------------------- #
+  output$lc2table <- {
+    tmp8 <- copy(lc2info)
+    setorder(tmp8, -itemcount)
+    tmp8[, controlled_circ:=sprintf("%.2f", controlled_circ)]
+    tmp8[, percent_coll:=sprintf("%.2f%%", 100*percent_coll)]
+    tmp8[, itemcount:=prettyNum(itemcount, big.mark=",")]
+    tmp8[, bibcount:=prettyNum(bibcount, big.mark=",")]
+    tmp8[, fy17_circ:=prettyNum(fy17_circ, big.mark=",")]
+    tmp8[, fy18_circ:=prettyNum(fy18_circ, big.mark=",")]
+    tmp8[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
+    tmp8[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
+    tmp8[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
+    tmp8[, total_circ:=prettyNum(total_circ, big.mark=",")]
+    setnames(tmp8, "itemcount", "Item Count")
+    setnames(tmp8, "bibcount", "Bib Count")
+    setnames(tmp8, "date.div", "Date Spread")
+    setnames(tmp8, "fy17_circ", "FY17 Circ")
+    setnames(tmp8, "fy18_circ", "FY18 Circ")
+    setnames(tmp8, "fy19_circ", "FY19 Circ")
+    setnames(tmp8, "fy20_circ", "FY20 Circ")
+    setnames(tmp8, "fy21_circ", "FY21 Circ")
+    setnames(tmp8, "total_circ", "Total Circ")
+    setnames(tmp8, "controlled_circ", "Circ Per Item")
+    setnames(tmp8, "percent_coll", "Percent of collection")
+    setnames(tmp8, "all_letters", "Letters")
+    setnames(tmp8, "lc_subject_subclass", "LC Subject Subclass")
+    renderDT(tmp8)
+  }
 
+  output$downloadlc2rawdata <- downloadHandler(
+    filename = "raw-lc2-data.txt",
+    content = function(file){
+      fwrite(lc2info, file, sep="\t")
+    }
+  )
+  # --------------------------------------------------------- #
+  
+  
+
+
+  # --------------------------------------------------------- #
+  # EDD                                                       #
+  # --------------------------------------------------------- #
+  output$sanddplot <- renderPlot({
+    tmpdata <- edddaily
+    if(input$sanddfreqopt=="Weekly")
+      tmpdata <- eddweekly
+    tmpfn <- ifelse(input$sanddsmoothp=="Yes", geom_smooth, geom_line)
+    tmpxlab <- ifelse(input$sanddfreqopt=="Weekly", "week", "date")
+    ggplot(tmpdata[center==input$sanddcenteropt], aes(x=thetime, y=total)) +
+      tmpfn(size=1.4, color="blue", alpha=0.6) +
+      xlab(tmpxlab)
+  })
+  
+  output$sanddlangtable <- {
+    tmp10 <- copy(eddlang)
+    tmp10 <- tmp10[lang!="TOTAL"]
+    setnames(tmp10, "lang", "language")
+    setorder(tmp10, -count)
+    renderDT(tmp10)
+  }
+
+  output$downloadsanddlangrawdata <- downloadHandler(
+    filename = "raw-sandd-lang-data.txt",
+    content = function(file){
+      fwrite(eddlang, file, sep="\t")
+    }
+  )
+  
+  output$sanddlc1table <- {
+    tmp11 <- copy(eddlc1)
+    tmp11 <- tmp11[subject_classification!="TOTAL"]
+    setorder(tmp11, -count)
+    renderDT(tmp11)
+  }
+
+  output$downloadsanddlc1rawdata <- downloadHandler(
+    filename = "raw-sandd-lc1-data.txt",
+    content = function(file){
+      fwrite(eddlc1, file, sep="\t")
+    }
+  )
+  # --------------------------------------------------------- #
 
 
 
