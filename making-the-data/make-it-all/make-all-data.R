@@ -26,7 +26,10 @@ library(BBmisc)
 
 
 
-dat <- fread("~/Dropbox/NYPL/nypl-shadow-export/target/sierra-research-healed-joined-2021-04-08-revision-1.dat.gz")
+dat <- fread_plus_date("~/Dropbox/NYPL/nypl-shadow-export/target/sierra-research-healed-joined.dat.gz")
+set_lb_attribute(dat, "source", "sierra shadow database")
+set_lb_attribute(dat, "note", "derived from data substrate from https://github.com/NYPL/sierra-shadow-dataset")
+
 
 justincase <- copy(dat)
 
@@ -70,7 +73,8 @@ langinfo[, percent_coll:=itemcount/sum(itemcount)]
 
 
 setnames(langinfo, "lang", "language")
-langinfo %>% fwrite("./langinfo.dat")
+cp_lb_attributes(dat, langinfo)
+langinfo %>% fwrite_plus_date("./langinfo.dat")
 
 # normalization
 
@@ -86,7 +90,7 @@ dt_keep_cols(langnorm, c("langcode", "language", "itemcount",
                          "date.div", "total_circ", "controlled_circ"))
 
 
-langnorm %>% fwrite("./langnorm.dat")
+langnorm %>% fwrite_plus_date("./langnorm.dat")
 
 
 # --------------------------------------------------------------- #
@@ -122,7 +126,8 @@ lc1info
 lc1info[, controlled_circ:=total_circ/itemcount]
 lc1info[, percent_coll:=itemcount/sum(itemcount)]
 
-lc1info %>% fwrite("./lc1-info.dat")
+cp_lb_attributes(dat, lc1info)
+lc1info %>% fwrite_plus_date("./lc1-info.dat")
 
 
 # normalization
@@ -138,7 +143,7 @@ lc1norm
 dt_keep_cols(lc1norm,  c("first_letter", "lc_subject_class", "itemcount",
                          "date.div", "total_circ", "controlled_circ"))
 
-lc1norm %>% fwrite("./lc1-norm.dat")
+lc1norm %>% fwrite_plus_date("./lc1-norm.dat")
 
 
 ### lc2 now
@@ -165,7 +170,8 @@ tmp[, .(itemcount=.N,
 lc2info[, controlled_circ:=total_circ/itemcount]
 lc2info[, percent_coll:=itemcount/sum(itemcount)]
 
-lc2info %>% fwrite("./lc2-info.dat")
+cp_lb_attributes(dat, lc2info)
+lc2info %>% fwrite_plus_date("./lc2-info.dat")
 
 
 # normalization
@@ -180,7 +186,7 @@ lc2norm
 
 dt_keep_cols(lc2norm,  c("all_letters", "lc_subject_subclass", "itemcount",
                          "date.div", "total_circ", "controlled_circ"))
-lc2norm %>% fwrite("./lc2-norm.dat", sep="\t")
+lc2norm %>% fwrite_plus_date("./lc2-norm.dat", sep="\t")
 
 
 
@@ -200,13 +206,15 @@ dat[, .N, .(biblevel, mattype)]
 dat[, .N, biblevel][!is.na(biblevel) & biblevel!="---"] -> xbiblevel
 xbiblevel[, percent_coll:=N/sum(N)]
 xbiblevel
-xbiblevel %>% fwrite("./xbiblevel.dat")
+cp_lb_attributes(dat, xbiblevel)
+xbiblevel %>% fwrite_plus_date("./xbiblevel.dat")
 
 
 dat[, .N, mattype][N>100] -> xmattype
 xmattype[, percent_coll:=N/sum(N)]
 xmattype
-xmattype %>% fwrite("./xmattype.dat")
+cp_lb_attributes(dat, xmattype)
+xmattype %>% fwrite_plus_date("./xmattype.dat")
 
 
 
@@ -248,7 +256,8 @@ countryinfo[order(-itemcount)]
 countryinfo[, controlled_circ:=total_circ/itemcount]
 countryinfo[, percent_coll:=itemcount/sum(itemcount)]
 
-countryinfo %>% fwrite("./countryinfo.dat")
+cp_lb_attributes(dat, countryinfo)
+countryinfo %>% fwrite_plus_date("./countryinfo.dat")
 
 
 
@@ -300,7 +309,8 @@ tmp[, .(num_items =sum(num_items),
 centerinfo[, percent_coll:=num_items/sum(num_items)]
 centerinfo[, controlled_circ:=total_circ/num_items]
 
-centerinfo %>% fwrite("./centerinfo.dat")
+cp_lb_attributes(dat, centerinfo)
+centerinfo %>% fwrite_plus_date("./centerinfo.dat")
 
 
 
@@ -368,7 +378,8 @@ add.to.build.a.count("gen_info", "fy21circ",
 
 build.a.count <- build.a.count[dacat!=""]
 
-build.a.count %>% fwrite("./gen-info.dat")
+cp_lb_attributes(dat, build.a.count)
+build.a.count %>% fwrite_plus_date("./gen-info.dat")
 
 
 
