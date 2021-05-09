@@ -3,12 +3,12 @@
 
 library(shiny)
 library(shinydashboard)
+library(shinyBS)
 library(data.table)
 library(stringr)
 library(DT)
 library(ggplot2)
 library(forecast)
-
 
 
 options(warn=1)
@@ -99,6 +99,24 @@ fread_plus_date <- function(fname, allow.fallback.date=TRUE, ...){
 ###### END TEMPORARY #############################
 ###### END TEMPORARY #############################
 
+make_popover <- function(id, text){
+  bsPopover(id=id, title="meta-info", content=text,
+            trigger="hover", placement="bottom")
+}
+
+make_popover_with_attributes <- function(id, dataused){
+  text <- ""
+  lbdate <- attr(dataused, "lb.date")
+  lbsource <- attr(dataused, "lb.source")
+  lbnotes <- attr(dataused, "lb.note")
+  if(!is.null(lbsource))
+    text <- sprintf("%sRaw data sourced from: %s", text, lbsource)
+  if(!is.null(lbdate))
+    text <- sprintf("%s<br><br>source last updated: %s", text, as.character(lbdate))
+  if(!is.null(lbnotes))
+    text <- sprintf("%s<br><br>notes: %s", text, lbnotes)
+  make_popover(id=id, text=text)
+}
 
 
 # ---
@@ -107,7 +125,7 @@ fread_plus_date <- function(fname, allow.fallback.date=TRUE, ...){
 nicecenterinfo <- fread_plus_date("./data/nice-wmr-and-lair-quarterly-stats.txt",
                                   sep="\t", header=TRUE)
 set_lb_attribute(nicecenterinfo, "source",
-                 "'http://ilsstaff.nypl.org/iii/webrpt/UserLogin.html' and 'https://cap.apps.nypl.org/do/rs_viewers/view_readers_materials'")
+                 "http://ilsstaff.nypl.org/iii/webrpt/UserLogin.html and https://cap.apps.nypl.org/do/rs_viewers/view_readers_materials")
 setorder(nicecenterinfo, FY, quarter)
 nicecenterinfo[, period:=nicecenterinfo[, sprintf("FY%s-Q%d", as.character(FY),
                                                   quarter)]]
@@ -121,7 +139,7 @@ cp_lb_attributes(nicecenterinfo, niceyeartotals)
 recapgeninfo <- fread_plus_date("./data/recap-gen-info.dat",
                                 sep="\t", header=TRUE)
 set_lb_attribute(recapgeninfo, "source", "SCSB MARCXml export")
-set_lb_attribute(recapgeninfo, "note", "derived from data substrate from 'https://github.com/recap-assessment-team/compile-recap-stats")
+set_lb_attribute(recapgeninfo, "note", "derived from data substrate from https://github.com/recap-assessment-team/compile-recap-stats")
 
 # ---
 
@@ -132,7 +150,7 @@ set_lb_attribute(visitinfo, "source", "https://lair.nypl.org/-/departments/libra
 
 geninfo <- fread_plus_date("./data/gen-info.dat", sep="\t", header=TRUE)
 set_lb_attribute(geninfo, "source", "Sierra shadow database")
-set_lb_attribute(geninfo, "note", "derived from the data product produced by 'https://github.com/NYPL/sierra-shadow-dataset'")
+set_lb_attribute(geninfo, "note", "derived from the data product produced by https://github.com/NYPL/sierra-shadow-dataset")
 langinfo <- fread_plus_date("./data/langinfo.dat", sep="\t", header=TRUE)
 cp_lb_attributes(geninfo, langinfo)
 langnorm <- fread_plus_date("./data/langnorm.dat", sep="\t", header=TRUE)
@@ -173,7 +191,7 @@ cp_lb_attributes(geninfo, lc2info)
 sandddaily  <- fread_plus_date("./data/scan-and-deliver-daily.dat", sep='\t', header=TRUE)
 setnames(sandddaily, "xdate", "thetime")
 set_lb_attribute(sandddaily, "source", "https://docs.google.com/spreadsheets/d/13zzPYWSM4YTeBfApgVdgdpEZWaIdk_Bu2io5JQqS0KY/edit#gid=0")
-set_lb_attribute(sandddaily, "note", "derived from the data product produced by 'https://github.com/NYPL/scan-and-deliver-stats'")
+set_lb_attribute(sandddaily, "note", "derived from the data product produced by https://github.com/NYPL/scan-and-deliver-stats")
 sanddweekly <- fread_plus_date("./data/scan-and-deliver-weekly.dat", sep='\t', header=TRUE)
 setnames(sanddweekly, "xdate", "thetime")
 cp_lb_attributes(sandddaily, sanddweekly)
@@ -215,12 +233,6 @@ header <- dashboardHeader(
                  icon=icon("exclamation-triangle"),
                  status="warning")),
   dropdownMenu(type = "tasks",
-               taskItem(value=10, color="red",
-                        HTML("Scan and Deliver UI improvements")
-                        ),
-               taskItem(value=10, color="red",
-                        HTML('Disambiguate "Scan and Deliver" and "EDD" in code')
-                        ),
                taskItem(value=10, color="red",
                         HTML('Add EZproxy stats to dashboard')
                         ),
@@ -284,8 +296,6 @@ sidebar <- dashboardSidebar(
 
     menuItem("LC subject (II)", tabName = "lc2super", icon = icon("landmark"),
              menuSubItem("Raw data table", tabName="lc2subraw", icon=icon("table"))
-             #menuSubItem("Pie chart", tabName="lc1subpie", icon=icon("pie-chart")),
-             #menuSubItem("Explorer", tabName="lc1subexplorer", icon=icon("search-plus"))
     ),
 
     menuItem("Electronic Resources", tabName = "ertab", icon = icon("bolt"),
@@ -318,12 +328,16 @@ body <- dashboardBody(
             br(),
             fluidRow(
               valueBoxOutput("totalItemsValueBox"),
-              valueBoxOutput("totalBibsValueBox")
+              make_popover_with_attributes("totalItemsValueBox", geninfo),
+              valueBoxOutput("totalBibsValueBox"),
+              make_popover_with_attributes("totalBibsValueBox", geninfo),
             ),
             br(),
             fluidRow(
               valueBoxOutput("recapNewItemsValueBox"),
-              valueBoxOutput("recapNewBibsValueBox")
+              make_popover_with_attributes("recapNewItemsValueBox", recapgeninfo),
+              valueBoxOutput("recapNewBibsValueBox"),
+              make_popover_with_attributes("recapNewBibsValueBox", recapgeninfo)
             ),
             br(),
             fluidRow(
