@@ -276,49 +276,29 @@ sidebar <- dashboardSidebar(
              menuSubItem("Pie chart", tabName="pubplacesubpie", icon=icon("pie-chart"))
     ),
 
-    menuItem("LC subject (I)", tabName = "lc1super", icon = icon("wheelchair"),
+    menuItem("LC subject (I)", tabName = "lc1super", icon = icon("landmark"),
              menuSubItem("Raw data table", tabName="lc1subraw", icon=icon("table")),
              menuSubItem("Pie chart", tabName="lc1subpie", icon=icon("pie-chart")),
              menuSubItem("Explorer", tabName="lc1subexplorer", icon=icon("search-plus"))
     ),
 
-    menuItem("LC subject (II)", tabName = "lc2super", icon = icon("wheelchair"),
+    menuItem("LC subject (II)", tabName = "lc2super", icon = icon("landmark"),
              menuSubItem("Raw data table", tabName="lc2subraw", icon=icon("table"))
              #menuSubItem("Pie chart", tabName="lc1subpie", icon=icon("pie-chart")),
              #menuSubItem("Explorer", tabName="lc1subexplorer", icon=icon("search-plus"))
     ),
 
-    menuItem("EDD", tabName = "eddrtab", icon = icon("bolt"),
-             menuSubItem("Scan and deliver", tabName="sanddtab", icon=icon("truck")),
-             menuSubItem(icon=NULL,
-                         selectInput("sanddcenteropt", "Center:",
-                                     c("SASB" = "SASB",
-                                       "Schomburg" = "Schomburg",
-                                       "LPA" = "LPA",
-                                       "All Centers" = "total"
-                                     ))
-             ),
-             menuSubItem(icon=NULL,
-                         selectInput("sanddfreqopt", "Frequency:",
-                                     c("Daily" = "Daily",
-                                       "Weekly" = "Weekly"
-                                     ))
-             ),
-             menuSubItem(icon=NULL,
-                         selectInput("sanddsmoothp", "Loess smoothing?:",
-                                     c("None" = "None",
-                                       "Yes" = "Yes"
-                                     ))
-             ),
-
+    menuItem("Electronic Resources", tabName = "ertab", icon = icon("bolt"),
+             menuSubItem("Scan and deliver (requests)", tabName="sanddreqstab", icon=icon("truck")),
              menuSubItem("Scan and deliver (language)", tabName="sanddlangtab",
                          icon=icon("truck")),
-             menuSubItem("Scan and deliver (LC Subjects)", tabName="sanddlc1tab",
-                         icon=icon("truck"))
+             menuSubItem("Scan and deliver (LC subjects)", tabName="sanddlc1tab",
+                         icon=icon("truck")),
+             menuSubItem("EZ proxy", tabName="ezproxytab",
+                         icon=icon("laptop"))
     ),
 
-    menuItem("Aeon", tabName = "aeontab", icon = icon("palette"),
-             menuSubItem("coming soon", tabName="garbage", icon=icon("table"))
+    menuItem("Aeon", tabName = "aeontab", icon = icon("palette")
     )
 
   )
@@ -495,8 +475,7 @@ body <- dashboardBody(
     tabItem(tabName = "biblevelsubraw",
             h1("Bib Level"),
             downloadButton("downloadbiblevelrawdata", "Download"),
-            br(),
-            br(),
+            br(), br(),
             fluidRow(
               column(12,
                      box(
@@ -541,8 +520,7 @@ body <- dashboardBody(
     tabItem(tabName = "mattypesubraw",
             h1("Material Type"),
             downloadButton("downloadmattyperawdata", "Download"),
-            br(),
-            br(),
+            br(), br(),
             fluidRow(
               column(12,
                      box(
@@ -587,8 +565,7 @@ body <- dashboardBody(
     tabItem(tabName = "languagesubraw",
             h1("Language"),
             downloadButton("downloadlangrawdata", "Download"),
-            br(),
-            br(),
+            br(), br(),
             fluidRow(
               column(12,
                      box(
@@ -668,8 +645,7 @@ body <- dashboardBody(
     tabItem(tabName = "pubplacesubraw",
             h1("Place of publication"),
             downloadButton("downloadpubplacerawdata", "Download"),
-            br(),
-            br(),
+            br(), br(),
             fluidRow(
               column(12,
                      box(
@@ -713,8 +689,7 @@ body <- dashboardBody(
     tabItem(tabName = "lc1subraw",
             h1("Library of Congress subject classifications"),
             downloadButton("downloadlc1rawdata", "Download"),
-            br(),
-            br(),
+            br(), br(),
             fluidRow(
               column(12,
                      box(
@@ -794,8 +769,7 @@ body <- dashboardBody(
     tabItem(tabName = "lc2subraw",
             h1("Library of Congress subject subclassifications"),
             downloadButton("downloadlc2rawdata", "Download"),
-            br(),
-            br(),
+            br(), br(),
             fluidRow(
               column(12,
                      box(
@@ -815,26 +789,64 @@ body <- dashboardBody(
   # --------------------------------------------------------- #
   # Scan and deliver
   # --------------------------------------------------------- #
-    tabItem(tabName = "sanddtab",
+    tabItem(tabName = "sanddreqstab",
             h1("Scan and deliver"),
             br(),
             fluidRow(
-              column(12,
+              column(width=9,
                      box(
-                       title="Number of filled requests (from Sierra)",
+                       title="Number of filled requests",
                        solidHeader = TRUE,
                        status="primary",
                        collapsible = TRUE,
-                       plotOutput("sanddplot"), width=12)
+                       plotOutput("sanddreqsplot"),
+                       width=12,
+                     ),
+              ),
+              column(width=3,
+                     box(
+                       title="Center",
+                       status="primary",
+                       solidHeader = TRUE,
+                       selectInput("sanddcenteropt", "Choose center:",
+                                   c(
+                                     "All Centers" = "total",
+                                     "LPA" = "LPA",
+                                     "Schomburg" = "Schomburg",
+                                     "SASB" = "SASB"
+                                   )),
+                       width=12
+                     ),
+                     box(
+                       title="Frequency",
+                       status="primary",
+                       solidHeader = TRUE,
+                       selectInput("sanddfreqopt", "Choose frequency:",
+                                   c("Daily" = "Daily",
+                                     "Weekly" = "Weekly"
+                                   )),
+                       width=12
+                     ),
+                     box(
+                       title="Smoothing",
+                       status="primary",
+                       solidHeader = TRUE,
+                       selectInput("sanddsmoothp", "Loess smoothing?:",
+                                   c("None" = "None",
+                                     "Yes" = "Yes"
+                                   )),
+                       width=12
+                     )
+                     
               )
             )
     ),
+             
 
     tabItem(tabName = "sanddlangtab",
             h1("Scan and deliver (language breakdown)"),
             downloadButton("downloadsanddlangrawdata", "Download"),
-            br(),
-            br(),
+            br(), br(),
             fluidRow(
               column(12,
                      box(
@@ -852,8 +864,7 @@ body <- dashboardBody(
     tabItem(tabName = "sanddlc1tab",
             h1("Scan and deliver (LC Subject Class breakdown)"),
             downloadButton("downloadsanddlc1rawdata", "Download"),
-            br(),
-            br(),
+            br(), br(),
             fluidRow(
               column(12,
                      box(
@@ -866,15 +877,28 @@ body <- dashboardBody(
                      )
               )
             )
-    )
+    ),
+  
+    tabItem(tabName = "ezproxytab",
+            h1("EZ proxy statistics"),
+            br(), br(),
+            "forthcoming"
+    ),
   # --------------------------------------------------------- #
 
 
 
+  # --------------------------------------------------------- #
+  # Aeon
+  # --------------------------------------------------------- #
 
+    tabItem(tabName = "aeontab",
+            h1("Aeon statistics"),
+            br(), br(),
+            "forthcoming"
+    )
 
-
-
+  # --------------------------------------------------------- #
 
 
 
@@ -925,7 +949,7 @@ server <- function(input, output) {
       prettyNum(recapgeninfo[variable=="non-nypl-items", value], big.mark=","),
       "Newly accessible non-NYPL items available through Shared Collection†",
       color="red",
-      icon=icon("exchange")
+      icon=icon("dolly-flatbed")
     )
   })
 
@@ -934,7 +958,7 @@ server <- function(input, output) {
       prettyNum(recapgeninfo[variable=="non-nypl-titles", value], big.mark=","),
       "Newly accessible non-NYPL titles available through Shared Collection†",
       color="red",
-      icon=icon("exchange")
+      icon=icon("dolly-flatbed")
     )
   })
 
@@ -1351,7 +1375,7 @@ server <- function(input, output) {
   # --------------------------------------------------------- #
   # Scan and deliver                                          #
   # --------------------------------------------------------- #
-  output$sanddplot <- renderPlot({
+  output$sanddreqsplot <- renderPlot({
     tmpdata <- sandddaily
     if(input$sanddfreqopt=="Weekly")
       tmpdata <- sanddweekly
