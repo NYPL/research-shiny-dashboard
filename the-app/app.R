@@ -214,6 +214,15 @@ header <- dashboardHeader(
                  icon=icon("exclamation-triangle"),
                  status="warning")),
   dropdownMenu(type = "tasks",
+               taskItem(value=10, color="red",
+                        HTML("Scan and Deliver UI improvements")
+                        ),
+               taskItem(value=10, color="red",
+                        HTML('Disambiguate "Scan and Deliver" and "EDD" in code')
+                        ),
+               taskItem(value=10, color="red",
+                        HTML('Add EZproxy stats to dashboard')
+                        ),
                taskItem(value=80, color="green",
                         HTML("Finish automation of LC Call<br> Number cross-pollination")
                         ),
@@ -222,12 +231,6 @@ header <- dashboardHeader(
                         ),
                taskItem(value=10, color="yellow",
                         HTML("Rollup 'place of publication' to 'country' level")
-                        ),
-               taskItem(value=10, color="yellow",
-                        HTML("Scan and Deliver UI improvements")
-                        ),
-               taskItem(value=10, color="yellow",
-                        HTML('Disambiguate "Scan and Deliver" and "EDD" in code')
                         )
               )
 
