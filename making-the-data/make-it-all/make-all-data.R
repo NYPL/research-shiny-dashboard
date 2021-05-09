@@ -25,8 +25,16 @@ library(BBmisc)
 # ------------------------------ #
 
 
+SHADOW_SIERRA_LOCATION <- "~/Dropbox/NYPL/nypl-shadow-export/target/"
+RECAP_DATA_LOCATION <- "~/Dropbox/NYPL/compile-recap-stats/target/"
 
-dat <- fread_plus_date("~/Dropbox/NYPL/nypl-shadow-export/target/sierra-research-healed-joined.dat.gz")
+
+# ------------------------------ #
+
+sierra-research-healed-joined.dat.gz
+
+dat <- fread_plus_date(sprintf("%s/sierra-research-healed-joined.dat.gz",
+                               SHADOW_SIERRA_LOCATION)
 set_lb_attribute(dat, "source", "sierra shadow database")
 set_lb_attribute(dat, "note", "derived from data substrate from https://github.com/NYPL/sierra-shadow-dataset")
 
@@ -383,3 +391,18 @@ build.a.count %>% fwrite_plus_date("./gen-info.dat")
 
 
 
+############### NOW THE RECAP NUMBERS
+
+dat <- fread_plus_date(sprintf("%s/RECAP.dat.gz", RECAP_DATA_LOCATION))
+set_lb_attribute(dat, "source", "SCSB MARCXml export")
+set_lb_attribute(dat, "note", "derived from data substrate from 'https://github.com/recap-assessment-team/compile-recap-stats")
+attributes(dat)
+
+non_nypl_titles <- dat[inst_has_item!="NYPL", uniqueN(scsbid)]
+non_nypl_items  <- dat[inst_has_item!="NYPL", uniqueN(barcode)]
+
+recap_gen_info <- data.table(variable=c("non-nypl-items", "non-nypl-titles"),
+                             value=c(non_nypl_items, non_nypl_titles))
+
+cp_lb_attributes(dat, recap_gen_info)
+recap_gen_info %>% fwrite_plus_date("./recap-gen-info.dat")
