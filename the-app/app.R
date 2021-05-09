@@ -126,7 +126,7 @@ set_lb_attribute(recapgeninfo, "note", "derived from data substrate from 'https:
 # ---
 
 visitinfo <- fread_plus_date("./data/visits-by-quarter.dat", sep="\t", header=TRUE)
-set_lb_attribute(visitinfo, "source", "I FORGOT")
+set_lb_attribute(visitinfo, "source", "https://lair.nypl.org/-/departments/library-sites-and-services/research-libraries/view-statistics")
 
 # ---
 
@@ -173,6 +173,7 @@ cp_lb_attributes(geninfo, lc2info)
 sandddaily  <- fread_plus_date("./data/scan-and-deliver-daily.dat", sep='\t', header=TRUE)
 setnames(sandddaily, "xdate", "thetime")
 set_lb_attribute(sandddaily, "source", "https://docs.google.com/spreadsheets/d/13zzPYWSM4YTeBfApgVdgdpEZWaIdk_Bu2io5JQqS0KY/edit#gid=0")
+set_lb_attribute(sandddaily, "note", "derived from the data product produced by 'https://github.com/NYPL/scan-and-deliver-stats'")
 sanddweekly <- fread_plus_date("./data/scan-and-deliver-weekly.dat", sep='\t', header=TRUE)
 setnames(sanddweekly, "xdate", "thetime")
 cp_lb_attributes(sandddaily, sanddweekly)
