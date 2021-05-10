@@ -10,4 +10,4 @@ url: https://nypldigital.shinyapps.io/research-dashboard/
 when: 1612198635.61488
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: update-data.sh
+ignoredFiles: update-data.s

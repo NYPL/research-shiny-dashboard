@@ -101,7 +101,7 @@ fread_plus_date <- function(fname, allow.fallback.date=TRUE, ...){
 
 make_popover <- function(id, text){
   bsPopover(id=id, title="meta-info", content=text,
-            trigger="hover", placement="bottom")
+            trigger="click", placement="bottom")
 }
 
 make_popover_with_attributes <- function(id, dataused){
@@ -110,11 +110,11 @@ make_popover_with_attributes <- function(id, dataused){
   lbsource <- attr(dataused, "lb.source")
   lbnotes <- attr(dataused, "lb.note")
   if(!is.null(lbsource))
-    text <- sprintf("%sRaw data sourced from: %s", text, lbsource)
+    text <- sprintf("%s<b>Raw data sourced from:</b> %s", text, lbsource)
   if(!is.null(lbdate))
-    text <- sprintf("%s<br><br>source last updated: %s", text, as.character(lbdate))
+    text <- sprintf("%s<br><br><b>source last updated:</b> %s", text, as.character(lbdate))
   if(!is.null(lbnotes))
-    text <- sprintf("%s<br><br>notes: %s", text, lbnotes)
+    text <- sprintf("%s<br><br><b>notes:</b> %s", text, lbnotes)
   make_popover(id=id, text=text)
 }
 
@@ -139,7 +139,7 @@ cp_lb_attributes(nicecenterinfo, niceyeartotals)
 recapgeninfo <- fread_plus_date("./data/recap-gen-info.dat",
                                 sep="\t", header=TRUE)
 set_lb_attribute(recapgeninfo, "source", "SCSB MARCXml export")
-set_lb_attribute(recapgeninfo, "note", "derived from data substrate from https://github.com/recap-assessment-team/compile-recap-stats")
+set_lb_attribute(recapgeninfo, "note", 'derived from data substrate from https://github.com/recap-assessment-team/compile-recap-stats')
 
 # ---
 
