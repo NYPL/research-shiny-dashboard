@@ -9,6 +9,7 @@ library(stringr)
 library(DT)
 library(ggplot2)
 library(forecast)
+library(glue)
 
 
 options(warn=1)
@@ -99,12 +100,7 @@ fread_plus_date <- function(fname, allow.fallback.date=TRUE, ...){
 ###### END TEMPORARY #############################
 ###### END TEMPORARY #############################
 
-make_popover <- function(id, text){
-  bsPopover(id=id, title="meta-info", content=text,
-            trigger="click", placement="bottom")
-}
-
-make_popover_with_attributes <- function(id, dataused){
+make_desc_text <- function(dataused){
   text <- ""
   lbdate <- attr(dataused, "lb.date")
   lbsource <- attr(dataused, "lb.source")
@@ -112,11 +108,37 @@ make_popover_with_attributes <- function(id, dataused){
   if(!is.null(lbsource))
     text <- sprintf("%s<b>Raw data sourced from:</b> %s", text, lbsource)
   if(!is.null(lbdate))
-    text <- sprintf("%s<br><br><b>source last updated:</b> %s", text, as.character(lbdate))
+    text <- sprintf("%s<br><b>source last updated:</b> %s", text, as.character(lbdate))
+    #text <- sprintf("%s<br><br><b>source last updated:</b> %s", text, as.character(lbdate))
   if(!is.null(lbnotes))
-    text <- sprintf("%s<br><br><b>notes:</b> %s", text, lbnotes)
+    text <- sprintf("%s<br><b>notes:</b> %s", text, lbnotes)
+    #text <- sprintf("%s<br><br><b>notes:</b> %s", text, lbnotes)
+  text
+}
+
+make_popover <- function(id, text){
+  bsPopover(id=id, title="meta-info", content=text,
+            trigger="click", placement="bottom")
+}
+
+make_popover_with_attributes <- function(id, dataused){
+  text <- make_desc_text(dataused)
   make_popover(id=id, text=text)
 }
+
+
+make_link <- function(link){
+  glue('<a href="{link}">{link}</a>')
+}
+
+make_small <- function(text, small=2){
+  nowitssmall <- sprintf("%s%s%s", glue_collapse(rep("<small>", small)),
+                                   text,
+                                   glue_collapse(rep("</small>", small)))
+  nowitssmall
+}
+
+
 
 
 # ---
@@ -125,7 +147,7 @@ make_popover_with_attributes <- function(id, dataused){
 nicecenterinfo <- fread_plus_date("./data/nice-wmr-and-lair-quarterly-stats.txt",
                                   sep="\t", header=TRUE)
 set_lb_attribute(nicecenterinfo, "source",
-                 "http://ilsstaff.nypl.org/iii/webrpt/UserLogin.html and https://cap.apps.nypl.org/do/rs_viewers/view_readers_materials")
+                 glue('<br>{make_link("http://ilsstaff.nypl.org/iii/webrpt/UserLogin.html")} and<br>{make_link("https://cap.apps.nypl.org/do/rs_viewers/view_readers_materials")}'))
 setorder(nicecenterinfo, FY, quarter)
 nicecenterinfo[, period:=nicecenterinfo[, sprintf("FY%s-Q%d", as.character(FY),
                                                   quarter)]]
@@ -139,18 +161,19 @@ cp_lb_attributes(nicecenterinfo, niceyeartotals)
 recapgeninfo <- fread_plus_date("./data/recap-gen-info.dat",
                                 sep="\t", header=TRUE)
 set_lb_attribute(recapgeninfo, "source", "SCSB MARCXml export")
-set_lb_attribute(recapgeninfo, "note", 'derived from data substrate from https://github.com/recap-assessment-team/compile-recap-stats')
+set_lb_attribute(recapgeninfo, "note", glue('derived from data substrate from {make_link("https://github.com/recap-assessment-team/compile-recap-stats")}'))
 
 # ---
 
 visitinfo <- fread_plus_date("./data/visits-by-quarter.dat", sep="\t", header=TRUE)
 set_lb_attribute(visitinfo, "source", "https://lair.nypl.org/-/departments/library-sites-and-services/research-libraries/view-statistics")
+set_lb_attribute(visitinfo, "note", "this source of data is now deprecated")
 
 # ---
 
 geninfo <- fread_plus_date("./data/gen-info.dat", sep="\t", header=TRUE)
 set_lb_attribute(geninfo, "source", "Sierra shadow database")
-set_lb_attribute(geninfo, "note", "derived from the data product produced by https://github.com/NYPL/sierra-shadow-dataset")
+set_lb_attribute(geninfo, "note", glue('derived from the data product produced by {make_link("https://github.com/NYPL/sierra-shadow-dataset")}'))
 langinfo <- fread_plus_date("./data/langinfo.dat", sep="\t", header=TRUE)
 cp_lb_attributes(geninfo, langinfo)
 langnorm <- fread_plus_date("./data/langnorm.dat", sep="\t", header=TRUE)
@@ -342,8 +365,11 @@ body <- dashboardBody(
             br(),
             fluidRow(
               valueBoxOutput("fy18checkoutsValueBox"),
+              make_popover_with_attributes("fy18checkoutsValueBox", niceyeartotals),
               valueBoxOutput("fy19checkoutsValueBox"),
-              valueBoxOutput("fy20checkoutsValueBox")
+              make_popover_with_attributes("fy19checkoutsValueBox", niceyeartotals),
+              valueBoxOutput("fy20checkoutsValueBox"),
+              make_popover_with_attributes("fy20checkoutsValueBox", niceyeartotals)
             ),
             br(), br(), br(), br(),
             br(), br(), br(), br(),
@@ -378,12 +404,12 @@ body <- dashboardBody(
               column(12,
                      box(
                        title="Tabular info",
+                       footer=HTML(make_small(glue('{make_desc_text(locationinfo)}'))),
                        solidHeader = TRUE,
                        status="primary",
                        collapsible = TRUE,
                        DTOutput('centertable'),
-                       width=12
-                     )
+                       width=12)
               )
             ),
             br(),
@@ -394,7 +420,8 @@ body <- dashboardBody(
                        solidHeader = TRUE,
                        status="primary",
                        collapsible = TRUE,
-                       plotOutput("locationpie"), width=12)
+                       plotOutput("locationpie"), width=12),
+                     make_popover_with_attributes("locationpie", locationinfo)
               )
             )
     ),
@@ -410,9 +437,11 @@ body <- dashboardBody(
             br(),
             fluidRow(
               valueBoxOutput("fy18checkoutsValueBox2"),
+              make_popover_with_attributes("fy18checkoutsValueBox2", niceyeartotals),
               valueBoxOutput("fy19checkoutsValueBox2"),
+              make_popover_with_attributes("fy19checkoutsValueBox2", niceyeartotals),
               valueBoxOutput("fy20checkoutsValueBox2"),
-              valueBoxOutput("fy21checkoutsValueBox2")
+              make_popover_with_attributes("fy20checkoutsValueBox2", niceyeartotals)
             ),
             br(), br(), br(), br(),
             br(), br(), br(), br(),
@@ -420,7 +449,7 @@ body <- dashboardBody(
               column(12,
                      box(title="footnotes",
                          collapsible=TRUE,
-                         "‡    This includes all Sierra checkouts (general collections) and special collection usage as reported on the Web Management Report and the Cloud Apps Portal, respectively",
+                         "‡    This includes only checkouts and special collection usage as reported on the Web Management Report and the Cloud Apps Portal",
                          width=7)))
     ),
 
@@ -431,6 +460,7 @@ body <- dashboardBody(
               column(12,
                      box(
                        title="Overall circ by quarter",
+                       footer=HTML(make_small(glue('{make_desc_text(nicetotals)}'))),
                        collapsible = TRUE,
                        solidHeader = TRUE,
                        status="primary",
@@ -450,6 +480,7 @@ body <- dashboardBody(
               column(12,
                      box(
                        title="Quarterly circulation by center",
+                       footer=HTML(make_small(glue('{make_desc_text(nicecenterinfo)}'))),
                        solidHeader = TRUE,
                        status="primary",
                        collapsible = TRUE,
@@ -472,6 +503,7 @@ body <- dashboardBody(
               column(12,
                      box(
                        title="Visits by quarter",
+                       footer=HTML(make_small(glue('{make_desc_text(visitinfo)}'))),
                        collapsible = TRUE,
                        solidHeader = TRUE,
                        status="primary",
