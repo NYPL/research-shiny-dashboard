@@ -37,15 +37,21 @@
 
 * codify knowledge and idiosyncracies
 
-* version control
-  * https://github.com/NYPL/sierra-shadow-dataset
-
-* error checking
-
 * apparatus joins disparate data sources
 
 * powered by a data substrate which is useful independent of
   the dashboard
+
+* version control
+  * https://github.com/NYPL/sierra-shadow-dataset
+  * https://github.com/NYPL/ezproxy-stats/
+  * https://github.com/NYPL/scan-and-deliver-stats
+  * https://github.com/NYPL/research-shiny-dashboard
+
+* metrics transparency
+
+* error checking
+
 
 -------------------------------------------------------------
 
@@ -58,6 +64,7 @@
   * More helpful options for curators
     * limit languages
     * limit subjects
+    * facet by center
 
   * listen
     * un-anticipated needs
