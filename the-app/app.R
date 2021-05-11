@@ -272,14 +272,14 @@ header <- dashboardHeader(
                  icon=icon("exclamation-triangle"),
                  status="warning")),
   dropdownMenu(type = "tasks",
-               taskItem(value=10, color="red",
-                        HTML('Add EZproxy stats to dashboard')
-                        ),
-               taskItem(value=80, color="green",
-                        HTML("Finish automation of LC Call<br> Number cross-pollination")
-                        ),
-               taskItem(value=10, color="yellow",
+               taskItem(value=60, color="green",
                         HTML("Pervasive tool-tips")
+                        ),
+               taskItem(value=5, color="red",
+                        HTML('Add Counter stats to dashboard')
+                        ),
+               taskItem(value=20, color="yellow",
+                        HTML("Finish automation of LC Call<br> Number cross-pollination")
                         ),
                taskItem(value=10, color="yellow",
                         HTML("Rollup 'place of publication' to 'country' level")
@@ -295,7 +295,7 @@ sidebar <- dashboardSidebar(
              menuSubItem("General info", tabName="locationgen", icon=icon("pie-chart"))),
 
     menuItem("Circulation", tabName = "circsuper", icon = icon("bezier-curve"),
-             menuSubItem("Circ Overview", tabName="circsuboverview", icon=icon("dashboard")),
+             #menuSubItem("Circ Overview", tabName="circsuboverview", icon=icon("dashboard")),
              menuSubItem("Overall quarterly circ", tabName="circoverallview", icon=icon("line-chart")),
              menuSubItem("Circ by center", tabName="circbycenter", icon=icon("line-chart")),
              menuSubItem(icon=NULL,
@@ -336,13 +336,16 @@ sidebar <- dashboardSidebar(
              menuSubItem("Raw data table", tabName="lc2subraw", icon=icon("table"))
     ),
 
-    menuItem("Electronic Resources", tabName = "ertab", icon = icon("bolt"),
-             menuSubItem("Scan and deliver (requests)", tabName="sanddreqstab", icon=icon("truck")),
-             menuSubItem("Scan and deliver (language)", tabName="sanddlangtab",
-                         icon=icon("truck")),
-             menuSubItem("Scan and deliver (LC subjects)", tabName="sanddlc1tab",
-                         icon=icon("truck")),
+    menuItem("Scan and deliver", tabName = "sanddsuper", icon = icon("truck"),
+             menuSubItem("Requests", tabName="sanddreqstab", icon=icon("line-chart")),
+             menuSubItem("Language breakdown", tabName="sanddlangtab", icon=icon("table")),
+             menuSubItem("LC subject breakdown", tabName="sanddlc1tab", icon=icon("table"))
+    ),
+             
+    menuItem("Electronic Resources", tabName = "ertab", icon = icon("laptop"),
              menuSubItem("EZ proxy", tabName="ezproxytab",
+                         icon=icon("line-chart")),
+             menuSubItem("Counter", tabName="countertab",
                          icon=icon("laptop"))
     ),
 
@@ -924,7 +927,12 @@ body <- dashboardBody(
               )
             )
     ),
+  # --------------------------------------------------------- #
   
+  
+  # --------------------------------------------------------- #
+  # EZ Proxy
+  # --------------------------------------------------------- #
     tabItem(tabName = "ezproxytab",
             h1("EZ proxy statistics"),
             br(), br(),
@@ -971,6 +979,12 @@ body <- dashboardBody(
               )
             )
                      
+    ),
+  
+    tabItem(tabName = "countertab",
+            h1("Counter Statistics"),
+            br(), br(),
+            "forthcoming"
     ),
   # --------------------------------------------------------- #
 
