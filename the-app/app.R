@@ -128,7 +128,7 @@ make_desc_text <- function(dataused){
   lbsource <- attr(dataused, "lb.source")
   lbnotes <- attr(dataused, "lb.note")
   if(!is.null(lbsource))
-    text <- sprintf("%s<b>Raw data sourced from:</b> %s", text, lbsource)
+    text <- sprintf("%s<b>raw data sourced from:</b> %s", text, lbsource)
   if(!is.null(lbdate))
     text <- sprintf("%s<br><b>source last updated:</b> %s", text, as.character(lbdate))
     #text <- sprintf("%s<br><br><b>source last updated:</b> %s", text, as.character(lbdate))
@@ -153,7 +153,7 @@ make_link <- function(link){
   glue('<a href="{link}">{link}</a>')
 }
 
-make_small <- function(text, small=2){
+make_small <- function(text, small=3){
   nowitssmall <- sprintf("%s%s%s", glue_collapse(rep("<small>", small)),
                                    text,
                                    glue_collapse(rep("</small>", small)))
@@ -249,6 +249,10 @@ cp_lb_attributes(sandddaily, sanddlang)
 sanddlc1 <- fread_plus_date("./data/scan-and-deliver-subject-classification-breakdown.dat",
                             sep="\t", header=TRUE)
 cp_lb_attributes(sandddaily, sanddlc1)
+
+# ---
+
+ezprox1 <- fread_plus_date("./data/ezproxy-vendor-dates.dat", sep='\t', header=TRUE)
 
 # --------------------------------------------------------- #
 # --------------------------------------------------------- #
@@ -924,7 +928,49 @@ body <- dashboardBody(
     tabItem(tabName = "ezproxytab",
             h1("EZ proxy statistics"),
             br(), br(),
-            "forthcoming"
+            fluidRow(
+              column(width=9,
+                     box(
+                       title="Number of unique sessions over time",
+                       solidHeader = TRUE,
+                       status="primary",
+                       collapsible = TRUE,
+                       plotOutput("ezuniqsessionsplot"),
+                       width=12,
+                     ),
+              ),
+              column(width=3,
+                     box(
+                       title = "Controls",
+                       solidHeader = TRUE,
+                       status="primary",
+                       sliderInput("eztopvendors", "Number of top vendors:", 1, 12, 5),
+                       width=12
+                     ),
+                     box(
+                       title="Include grand total",
+                       status="primary",
+                       solidHeader = TRUE,
+                       selectInput("eztotalp", "Include grand total:",
+                                   c("No" = "No",
+                                     "Yes" = "Yes"
+                                   )),
+                       width=12
+                     ),
+                     box(
+                       title="Smoothing",
+                       status="primary",
+                       solidHeader = TRUE,
+                       selectInput("ezsmoothp", "GAM smoothing?:",
+                                   c("None" = "None",
+                                     "Yes" = "Yes"
+                                   )),
+                       width=12
+                     )
+                     
+              )
+            )
+                     
     ),
   # --------------------------------------------------------- #
 
@@ -1435,6 +1481,25 @@ server <- function(input, output) {
   )
   # --------------------------------------------------------- #
 
+
+  # --------------------------------------------------------- #
+  # EZ Proxy
+  # --------------------------------------------------------- #
+  
+  output$ezuniqsessionsplot <- renderPlot({
+    toplimit <- input$eztopvendors
+    lowerbound <- ifelse(input$eztotalp=="Yes", 0, 1)
+    tmpfn <- ifelse(input$ezsmoothp=="Yes",
+                    function(x){geom_smooth(method="gam")},
+                    geom_line)
+    ggplot(ezprox1[venrank<=toplimit & venrank>=lowerbound],
+           aes(x=just_date, y=unique_sessions, group=vendor,
+               color=vendor, fill=vendor)) +
+      tmpfn() +
+      xlab("date") + ylab("number of unique sessions")
+  })
+  
+  # --------------------------------------------------------- #
 }
 
 
