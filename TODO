@@ -1,0 +1,7 @@
+
+- more pervasive use of tooltips/pop-overs
+  (obviates the need for footnotes?)
+
+- use ENVIRONMENT variables instead of hard-coded/specific-to-me paths
+
+
