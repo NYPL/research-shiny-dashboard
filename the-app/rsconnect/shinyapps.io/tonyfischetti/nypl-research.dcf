@@ -5,10 +5,10 @@ account: tonyfischetti
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 998075
-bundleId: 4582742
+bundleId: 4595628
 url: https://tonyfischetti.shinyapps.io/nypl-research/
-when: 1620677543.6727
-lastSyncTime: 1620677543.67271
+when: 1620936564.6075
+lastSyncTime: 1620936564.60751
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: update-data.sh
+ignoredFiles: copy-data-needed.sh
