@@ -43,15 +43,24 @@
   the dashboard
 
 * version control
-  * https://github.com/NYPL/sierra-shadow-dataset
-  * https://github.com/NYPL/ezproxy-stats/
-  * https://github.com/NYPL/scan-and-deliver-stats
   * https://github.com/NYPL/research-shiny-dashboard
 
 * metrics transparency
 
 * error checking
 
+
+-------------------------------------------------------------
+
+# Data sources
+
+- four main sources
+  * https://github.com/NYPL/sierra-shadow-dataset
+  * https://github.com/NYPL/ezproxy-stats/
+  * https://github.com/NYPL/scan-and-deliver-stats
+  * https://github.com/recap-assessment-team/compile-recap-stats
+
+- soon to be deprecated static files
 
 -------------------------------------------------------------
 
@@ -68,6 +77,8 @@
 
   * listen
     * un-anticipated needs
+
+  * Counter statistics (database usage)
 
   * projection of Old Billings taxonomy onto LC Subject
     controlled vocabulary
