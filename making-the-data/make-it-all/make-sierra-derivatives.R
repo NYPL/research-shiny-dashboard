@@ -26,15 +26,13 @@ library(BBmisc)
 
 
 SHADOW_SIERRA_LOCATION  <- "~/Dropbox/NYPL/nypl-shadow-export/target/"
-RECAP_DATA_LOCATION     <- "~/Dropbox/NYPL/compile-recap-stats/target/"
-EZPROXY_DATA_LOCATION   <- "~/Dropbox/NYPL/ezproxy-logs/target/"
 
 
 # ------------------------------ #
 
 
 dat <- fread_plus_date(sprintf("%s/sierra-research-healed-joined.dat.gz",
-                               SHADOW_SIERRA_LOCATION)
+                               SHADOW_SIERRA_LOCATION))
 set_lb_attribute(dat, "source", "sierra shadow database")
 set_lb_attribute(dat, "note", "derived from data substrate from https://github.com/NYPL/sierra-shadow-dataset")
 
@@ -75,8 +73,6 @@ dat[, .(itemcount=.N,
 
 langinfo[!is.na(langcode)]                          -> langinfo
 
-langinfo[, itemcount] %>% hist
-
 # ONLY LANGUAGES WITH MORE THAN 50 ITEMS!
 langinfo[itemcount>50]                              -> langinfo
 
@@ -86,7 +82,7 @@ langinfo[, percent_coll:=itemcount/sum(itemcount)]
 
 setnames(langinfo, "lang", "language")
 cp_lb_attributes(dat, langinfo)
-langinfo %>% fwrite_plus_date("./langinfo.dat")
+langinfo %>% fwrite_plus_date("./target/langinfo.dat")
 
 # normalization
 
@@ -102,7 +98,7 @@ dt_keep_cols(langnorm, c("langcode", "language", "itemcount",
                          "date.div", "total_circ", "controlled_circ"))
 
 
-langnorm %>% fwrite_plus_date("./langnorm.dat")
+langnorm %>% fwrite_plus_date("./target/langnorm.dat")
 
 
 # --------------------------------------------------------------- #
@@ -139,7 +135,7 @@ lc1info[, controlled_circ:=total_circ/itemcount]
 lc1info[, percent_coll:=itemcount/sum(itemcount)]
 
 cp_lb_attributes(dat, lc1info)
-lc1info %>% fwrite_plus_date("./lc1-info.dat")
+lc1info %>% fwrite_plus_date("./target/lc1-info.dat")
 
 
 # normalization
@@ -155,7 +151,7 @@ lc1norm
 dt_keep_cols(lc1norm,  c("first_letter", "lc_subject_class", "itemcount",
                          "date.div", "total_circ", "controlled_circ"))
 
-lc1norm %>% fwrite_plus_date("./lc1-norm.dat")
+lc1norm %>% fwrite_plus_date("./target/lc1-norm.dat")
 
 
 ### lc2 now
@@ -183,7 +179,7 @@ lc2info[, controlled_circ:=total_circ/itemcount]
 lc2info[, percent_coll:=itemcount/sum(itemcount)]
 
 cp_lb_attributes(dat, lc2info)
-lc2info %>% fwrite_plus_date("./lc2-info.dat")
+lc2info %>% fwrite_plus_date("./target/lc2-info.dat")
 
 
 # normalization
@@ -198,7 +194,7 @@ lc2norm
 
 dt_keep_cols(lc2norm,  c("all_letters", "lc_subject_subclass", "itemcount",
                          "date.div", "total_circ", "controlled_circ"))
-lc2norm %>% fwrite_plus_date("./lc2-norm.dat", sep="\t")
+lc2norm %>% fwrite_plus_date("./target/lc2-norm.dat", sep="\t")
 
 
 
@@ -219,14 +215,14 @@ dat[, .N, biblevel][!is.na(biblevel) & biblevel!="---"] -> xbiblevel
 xbiblevel[, percent_coll:=N/sum(N)]
 xbiblevel
 cp_lb_attributes(dat, xbiblevel)
-xbiblevel %>% fwrite_plus_date("./xbiblevel.dat")
+xbiblevel %>% fwrite_plus_date("./target/xbiblevel.dat")
 
 
 dat[, .N, mattype][N>100] -> xmattype
 xmattype[, percent_coll:=N/sum(N)]
 xmattype
 cp_lb_attributes(dat, xmattype)
-xmattype %>% fwrite_plus_date("./xmattype.dat")
+xmattype %>% fwrite_plus_date("./target/xmattype.dat")
 
 
 
@@ -269,7 +265,7 @@ countryinfo[, controlled_circ:=total_circ/itemcount]
 countryinfo[, percent_coll:=itemcount/sum(itemcount)]
 
 cp_lb_attributes(dat, countryinfo)
-countryinfo %>% fwrite_plus_date("./countryinfo.dat")
+countryinfo %>% fwrite_plus_date("./target/countryinfo.dat")
 
 
 
@@ -322,7 +318,7 @@ centerinfo[, percent_coll:=num_items/sum(num_items)]
 centerinfo[, controlled_circ:=total_circ/num_items]
 
 cp_lb_attributes(dat, centerinfo)
-centerinfo %>% fwrite_plus_date("./centerinfo.dat")
+centerinfo %>% fwrite_plus_date("./target/centerinfo.dat")
 
 
 
@@ -391,80 +387,7 @@ add.to.build.a.count("gen_info", "fy21circ",
 build.a.count <- build.a.count[dacat!=""]
 
 cp_lb_attributes(dat, build.a.count)
-build.a.count %>% fwrite_plus_date("./gen-info.dat")
+build.a.count %>% fwrite_plus_date("./target/gen-info.dat")
 
-
-
-###################################################################
-###################################################################
-### RECAP NUMBERS
-###################################################################
-
-dat <- fread_plus_date(sprintf("%s/RECAP.dat.gz", RECAP_DATA_LOCATION))
-set_lb_attribute(dat, "source", "SCSB MARCXml export")
-set_lb_attribute(dat, "note", "derived from data substrate from 'https://github.com/recap-assessment-team/compile-recap-stats")
-attributes(dat)
-
-non_nypl_titles <- dat[inst_has_item!="NYPL", uniqueN(scsbid)]
-non_nypl_items  <- dat[inst_has_item!="NYPL", uniqueN(barcode)]
-
-recap_gen_info <- data.table(variable=c("non-nypl-items", "non-nypl-titles"),
-                             value=c(non_nypl_items, non_nypl_titles))
-
-cp_lb_attributes(dat, recap_gen_info)
-recap_gen_info %>% fwrite_plus_date("./recap-gen-info.dat")
-
-
-
-
-###################################################################
-###################################################################
-### EZPROXY NUMBERS
-###################################################################
-
-allez <- sapply(sort(list.files(EZPROXY_DATA_LOCATION)),
-                function(x) sprintf("%s/%s", EZPROXY_DATA_LOCATION, x))
-
-colsineed <- c("session", "ptype", #"date_and_time",
-               "vendor", "url", "barcode",
-               "homebranch", "patroncreatedate", "extract", "just_date")
-
-system.time(
-allez <- rbindlist(lapply(allez,
-                function(x){ fread_plus_date(x, select=colsineed) }))
-)
-
-set_lb_date(allez, allez[.N, just_date])
-
-
-
-allez <- allez[!(vendor %chin% c("ezproxy", "google")) & !is.na(vendor)]
-short <- allez[, .(unique_sessions=uniqueN(session)), .(just_date, vendor)]
-
-short[, sum(unique_sessions), vendor][
-  order(-V1)][, .(vendor, venrank=frank(-V1, ties.method="first"))] -> venrank
-setkey(venrank, "vendor")
-setkey(short, "vendor")
-uniq_sessions_by_dates_and_vendor <- venrank[venrank<31][short, nomatch=NULL]
-
-# totals
-totals <- allez[, .(vendor="TOTAL", venrank=0, unique_sessions=uniqueN(session)), just_date]
-uniq_sessions_by_dates_and_vendor <- rbind(uniq_sessions_by_dates_and_vendor, totals)
-
-# this is unprincipled, but I have no choice (anomaly)
-uniq_sessions_by_dates_and_vendor[vendor=="proquest" & unique_sessions>1000, unique_sessions:=700]
-
-cp_lb_attributes(allez, uniq_sessions_by_dates_and_vendor)
-uniq_sessions_by_dates_and_vendor %>%
-  fwrite_plus_date("ezproxy-vendor-dates.dat")
-
-
-### ptype distribution
-allez[!duplicated(barcode), .(count=.N), ptype][!is.na(ptype)] -> ptypedist
-setorder(ptypedist, -count)
-ptypedist[, percent:=round(100*count/sum(count), 2)]
-
-cp_lb_attributes(allez, ptypedist)
-ptypedist %>% fwrite_plus_date("ezproxy-ptype-dist.dat")
 
 
