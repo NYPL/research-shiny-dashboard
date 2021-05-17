@@ -131,10 +131,8 @@ make_desc_text <- function(dataused){
     text <- sprintf("%s<b>raw data sourced from:</b> %s", text, lbsource)
   if(!is.null(lbdate))
     text <- sprintf("%s<br><b>source last updated:</b> %s", text, as.character(lbdate))
-    #text <- sprintf("%s<br><br><b>source last updated:</b> %s", text, as.character(lbdate))
   if(!is.null(lbnotes))
     text <- sprintf("%s<br><b>notes:</b> %s", text, lbnotes)
-    #text <- sprintf("%s<br><br><b>notes:</b> %s", text, lbnotes)
   text
 }
 
@@ -253,6 +251,8 @@ cp_lb_attributes(sandddaily, sanddlc1)
 # ---
 
 ezprox1 <- fread_plus_date("./data/ezproxy-vendor-dates.dat", sep='\t', header=TRUE)
+set_lb_attribute(ezprox1, "source", "raw HTTP logs from EZ-Proxy Web Server")
+set_lb_attribute(ezprox1, "note", "derived from the data product produced by https://github.com/NYPL/ezproxy-stats")
 
 # --------------------------------------------------------- #
 # --------------------------------------------------------- #
@@ -272,9 +272,6 @@ header <- dashboardHeader(
                  icon=icon("exclamation-triangle"),
                  status="warning")),
   dropdownMenu(type = "tasks",
-               taskItem(value=60, color="green",
-                        HTML("Pervasive tool-tips")
-                        ),
                taskItem(value=5, color="red",
                         HTML('Add Counter stats to dashboard')
                         ),
@@ -295,7 +292,6 @@ sidebar <- dashboardSidebar(
              menuSubItem("General info", tabName="locationgen", icon=icon("pie-chart"))),
 
     menuItem("Circulation", tabName = "circsuper", icon = icon("bezier-curve"),
-             #menuSubItem("Circ Overview", tabName="circsuboverview", icon=icon("dashboard")),
              menuSubItem("Overall quarterly circ", tabName="circoverallview", icon=icon("line-chart")),
              menuSubItem("Circ by center", tabName="circbycenter", icon=icon("line-chart")),
              menuSubItem(icon=NULL,
@@ -392,16 +388,15 @@ body <- dashboardBody(
               column(12,
                      box(title="footnotes",
                          collapsible=TRUE,
-                          "*    based on a Sierra database export performed on 2021-04. Circulations are only for barcoded Sierra items and only reflect circulations since Sierra/Millenium",
-                          br(),
                           "*    does not include shared collection items from other institutions",
                           br(),
                           br(),
                           "†    does not include new Harvard integration candidates (potentially 3.8 million titles)",
                           br(),
                           br(),
-                          "‡    This includes all Sierra checkouts (general collections) and special collection usage as reported on the Web Management Report and the Cloud Apps Portal, respectively",
-                          width=7)))
+                          "‡    This includes all Sierra checkouts usage as reported on the Web Management Report and the Cloud Apps Portal",
+                          width=7))
+            )
     ),
   # --------------------------------------------------------- #
 
@@ -445,27 +440,6 @@ body <- dashboardBody(
   # --------------------------------------------------------- #
   # Circulations
   # --------------------------------------------------------- #
-    tabItem(tabName = "circsuboverview",
-            h1("Circulation overview"),
-            br(),
-            fluidRow(
-              valueBoxOutput("fy18checkoutsValueBox2"),
-              make_popover_with_attributes("fy18checkoutsValueBox2", niceyeartotals),
-              valueBoxOutput("fy19checkoutsValueBox2"),
-              make_popover_with_attributes("fy19checkoutsValueBox2", niceyeartotals),
-              valueBoxOutput("fy20checkoutsValueBox2"),
-              make_popover_with_attributes("fy20checkoutsValueBox2", niceyeartotals)
-            ),
-            br(), br(), br(), br(),
-            br(), br(), br(), br(),
-            fluidRow(
-              column(12,
-                     box(title="footnotes",
-                         collapsible=TRUE,
-                         "‡    This includes only checkouts and special collection usage as reported on the Web Management Report and the Cloud Apps Portal",
-                         width=7)))
-    ),
-
     tabItem(tabName = "circoverallview",
             h1("Overall Quarterly Circulation"),
             br(),
@@ -500,7 +474,6 @@ body <- dashboardBody(
               )
             )
     ),
-
   # --------------------------------------------------------- #
 
 
@@ -543,6 +516,16 @@ body <- dashboardBody(
                        width=12
                      )
               )
+            ),
+            br(), br(), br(), br(),
+            br(), br(), br(), br(),
+            fluidRow(
+              column(12,
+                     box(title="footnotes",
+                         collapsible=TRUE,
+                         HTML(make_desc_text(biblevelinfo)),
+                         width=7)
+                     )
             )
     ),
 
@@ -553,6 +536,7 @@ body <- dashboardBody(
               column(12,
                      box(
                        title="Number of items at each bib level",
+                       footer=HTML(make_small(glue('{make_desc_text(biblevelinfo)}'))),
                        solidHeader = TRUE,
                        status="primary",
                        plotOutput("biblevelpie"), width=9),
@@ -586,6 +570,16 @@ body <- dashboardBody(
                       width=12
                      )
               )
+            ),
+            br(), br(), br(), br(),
+            br(), br(), br(), br(),
+            fluidRow(
+              column(12,
+                     box(title="footnotes",
+                         collapsible=TRUE,
+                         HTML(make_desc_text(mattypeinfo)),
+                         width=7)
+                     )
             )
     ),
 
@@ -596,6 +590,7 @@ body <- dashboardBody(
               column(12,
                      box(
                        title="Number of items in each material type catagory",
+                       footer=HTML(make_small(glue('{make_desc_text(mattypeinfo)}'))),
                        solidHeader = TRUE,
                        status="primary",
                        plotOutput("mattypepie"),
@@ -630,6 +625,16 @@ body <- dashboardBody(
                        width=12
                      )
               )
+            ),
+            br(), br(), br(), br(),
+            br(), br(), br(), br(),
+            fluidRow(
+              column(12,
+                     box(title="footnotes",
+                         collapsible=TRUE,
+                         HTML(make_desc_text(langinfo)),
+                         width=7)
+                     )
             )
     ),
 
@@ -640,6 +645,7 @@ body <- dashboardBody(
               column(12,
                      box(
                        title="Number of items in each language",
+                       footer=HTML(make_small(glue('{make_desc_text(langinfo)}'))),
                        solidHeader = TRUE,
                        status="primary",
                        plotOutput("languagepie"),
@@ -662,6 +668,7 @@ body <- dashboardBody(
         column(width=9,
                 box(
                   title="Strength explorer (play with the strength coefficients)",
+                  footer=HTML(make_small(glue('{make_desc_text(langinfo)}'))),
                   status="primary",
                   solidHeader = TRUE,
                   plotOutput("languageexplorerbar"),
@@ -709,6 +716,16 @@ body <- dashboardBody(
                        width=12
                      )
               )
+            ),
+            #br(), br(), br(), br(),
+            br(), br(), br(), br(),
+            fluidRow(
+              column(12,
+                     box(title="footnotes",
+                         collapsible=TRUE,
+                         HTML(make_desc_text(countriesinfo)),
+                         width=7)
+                     )
             )
     ),
 
@@ -719,6 +736,7 @@ body <- dashboardBody(
               column(12,
                      box(
                        title="Number of items published in place",
+                       footer=HTML(make_small(glue('{make_desc_text(countriesinfo)}'))),
                        solidHeader = TRUE,
                        status="primary",
                        plotOutput("countriespie"),
@@ -752,6 +770,16 @@ body <- dashboardBody(
                        width=12
                      )
               )
+            ),
+            #br(), br(), br(), br(),
+            br(), br(), br(), br(),
+            fluidRow(
+              column(12,
+                     box(title="footnotes",
+                         collapsible=TRUE,
+                         HTML(make_desc_text(lc1info)),
+                         width=7)
+                     )
             )
     ),
 
@@ -762,6 +790,7 @@ body <- dashboardBody(
               column(12,
                      box(
                        title="Number of items in each subject category",
+                       footer=HTML(make_small(glue('{make_desc_text(lc1info)}'))),
                        solidHeader = TRUE,
                        status="primary",
                        plotOutput("lc1pie"),
@@ -784,6 +813,7 @@ body <- dashboardBody(
               column(width=9,
                      box(
                        title="Strength explorer (play with the strength coefficients)",
+                       footer=HTML(make_small(glue('{make_desc_text(lc1info)}'))),
                        status="primary",
                        solidHeader = TRUE,
                        plotOutput("lc1explorerbar"),
@@ -831,6 +861,16 @@ body <- dashboardBody(
                        width=12
                      )
               )
+            ),
+            #br(), br(), br(), br(),
+            br(), br(), br(), br(),
+            fluidRow(
+              column(12,
+                     box(title="footnotes",
+                         collapsible=TRUE,
+                         HTML(make_desc_text(lc2info)),
+                         width=7)
+                     )
             )
     ),
   # --------------------------------------------------------- #
@@ -846,6 +886,7 @@ body <- dashboardBody(
               column(width=9,
                      box(
                        title="Number of filled requests",
+                       footer=HTML(make_small(glue('{make_desc_text(sandddaily)}'))),
                        solidHeader = TRUE,
                        status="primary",
                        collapsible = TRUE,
@@ -907,6 +948,16 @@ body <- dashboardBody(
                        width=12
                      )
               )
+            ),
+            #br(), br(), br(), br(),
+            br(), br(), br(), br(),
+            fluidRow(
+              column(12,
+                     box(title="footnotes",
+                         collapsible=TRUE,
+                         HTML(make_desc_text(sanddlang)),
+                         width=7)
+                     )
             )
     ),
 
@@ -925,6 +976,16 @@ body <- dashboardBody(
                        width=12
                      )
               )
+            ),
+            #br(), br(), br(), br(),
+            br(), br(), br(), br(),
+            fluidRow(
+              column(12,
+                     box(title="footnotes",
+                         collapsible=TRUE,
+                         HTML(make_desc_text(sanddlc1)),
+                         width=7)
+                     )
             )
     ),
   # --------------------------------------------------------- #
@@ -940,6 +1001,7 @@ body <- dashboardBody(
               column(width=9,
                      box(
                        title="Number of unique sessions over time",
+                       footer=HTML(make_small(glue('{make_desc_text(ezprox1)}'))),
                        solidHeader = TRUE,
                        status="primary",
                        collapsible = TRUE,
