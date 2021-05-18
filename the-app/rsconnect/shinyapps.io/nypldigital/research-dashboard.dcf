@@ -5,9 +5,10 @@ account: nypldigital
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 3447687
-bundleId: 4587146
+bundleId: 4611597
 url: https://nypldigital.shinyapps.io/research-dashboard/
-when: 1620762688.10564
-lastSyncTime: 1620762688.10565
+when: 1621346380.11193
+lastSyncTime: 1621346380.11194
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: copy-data-needed.sh
