@@ -5,7 +5,7 @@
 rm(list=ls())
 
 options(echo=TRUE)
-options(width = 80)
+options(width=80)
 options(warn=2)
 options(scipen=10)
 options(datatable.prettyprint.char=50)
@@ -20,8 +20,9 @@ library(colorout)
 library(data.table)
 library(magrittr)
 library(stringr)
-library(libbib)
+library(libbib)     # >= v1.6.2
 library(BBmisc)
+library(assertr)
 # ------------------------------ #
 
 
@@ -40,9 +41,8 @@ set_lb_attribute(dat, "note", "derived from data substrate from https://github.c
 justincase <- copy(dat)
 
 dat[, .N]
-# 2021-04-08: 10,888,765
-# 2020-07-28: 10,895,556
-# ?         : 10,604,751
+# dat %>% verify(nrow(.) >= 10895556, success_fun=success_report) # 2020-07-28
+dat %>% verify(nrow(.) >= 10888765, success_fun=success_report) # 2021-04-08
 
 
 
