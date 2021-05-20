@@ -41,6 +41,7 @@ allez <- rbindlist(lapply(allez,
                 function(x){ fread_plus_date(x, select=colsineed) }))
 )
 
+setorder(allez, just_date)
 set_lb_date(allez, allez[.N, just_date])
 
 
