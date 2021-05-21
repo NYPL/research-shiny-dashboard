@@ -1198,21 +1198,21 @@ server <- function(input, output) {
   # CENTER/LOCATION                                           #
   # --------------------------------------------------------- #
   output$centertable <- {
-    tmp5 <- copy(locationinfo)
+    tmp1 <- copy(locationinfo)
     setorder(locationinfo, -num_bibs)
-    setorder(tmp5, -num_bibs)
-    tmp5[, controlled_circ:=sprintf("%.3f", controlled_circ)]
-    tmp5[, percent_coll:=sprintf("%.3f%%", 100*percent_coll)]
-    tmp5[, num_items:=prettyNum(num_items, big.mark=",")]
-    tmp5[, num_bibs:=prettyNum(num_bibs, big.mark=",")]
-    tmp5[, total_circ:=prettyNum(total_circ, big.mark=",")]
-    setnames(tmp5, "num_items", "Item Count")
-    setnames(tmp5, "num_bibs", "Bib Count")
-    setnames(tmp5, "total_circ", "Total Circ")
-    setnames(tmp5, "controlled_circ", "Circ Per Item")
-    setnames(tmp5, "percent_coll", "Percent of collection")
-    tmp5[center=="SIBL", center:="Business Library"]
-    renderDT(tmp5)
+    setorder(tmp1, -num_bibs)
+    tmp1[, controlled_circ:=sprintf("%.3f", controlled_circ)]
+    tmp1[, percent_coll:=sprintf("%.3f%%", 100*percent_coll)]
+    tmp1[, num_items:=prettyNum(num_items, big.mark=",")]
+    tmp1[, num_bibs:=prettyNum(num_bibs, big.mark=",")]
+    tmp1[, total_circ:=prettyNum(total_circ, big.mark=",")]
+    setnames(tmp1, "num_items", "Item Count")
+    setnames(tmp1, "num_bibs", "Bib Count")
+    setnames(tmp1, "total_circ", "Total Circ")
+    setnames(tmp1, "controlled_circ", "Circ Per Item")
+    setnames(tmp1, "percent_coll", "Percent of collection")
+    tmp1[center=="SIBL", center:="Business Library"]
+    renderDT(tmp1)
   }
 
   output$downloadcenterrawdata <- downloadHandler(
@@ -1246,14 +1246,14 @@ server <- function(input, output) {
   # BIB LEVEL                                                 #
   # --------------------------------------------------------- #
   output$bibleveltable <- {
-    tmp3 <- copy(biblevelinfo)
-    setorder(tmp3, -N)
+    tmp2 <- copy(biblevelinfo)
+    setorder(tmp2, -N)
     setorder(biblevelinfo, -N)
-    tmp3[, N:=prettyNum(N, big.mark=",")]
-    setnames(tmp3, "biblevel", "Bib Level")
-    setnames(tmp3, "N", "Total")
-    tmp3[, percent_coll:=NULL]
-    renderDT(tmp3)
+    tmp2[, N:=prettyNum(N, big.mark=",")]
+    setnames(tmp2, "biblevel", "Bib Level")
+    setnames(tmp2, "N", "Total")
+    tmp2[, percent_coll:=NULL]
+    renderDT(tmp2)
   }
 
   output$downloadbiblevelrawdata <- downloadHandler(
@@ -1275,14 +1275,14 @@ server <- function(input, output) {
   # MATERIAL TYPE                                             #
   # --------------------------------------------------------- #
   output$mattypetable <- {
-    tmp2 <- copy(mattypeinfo)
-    setorder(tmp2, -N)
+    tmp3 <- copy(mattypeinfo)
+    setorder(tmp3, -N)
     setorder(mattypeinfo, -N)
-    tmp2[, N:=prettyNum(N, big.mark=",")]
-    setnames(tmp2, "mattype", "Material Type")
-    setnames(tmp2, "N", "Total")
-    tmp2[, percent_coll:=NULL]
-    renderDT(tmp2)
+    tmp3[, N:=prettyNum(N, big.mark=",")]
+    setnames(tmp3, "mattype", "Material Type")
+    setnames(tmp3, "N", "Total")
+    tmp3[, percent_coll:=NULL]
+    renderDT(tmp3)
   }
 
   output$downloadmattyperawdata <- downloadHandler(
@@ -1304,31 +1304,31 @@ server <- function(input, output) {
   # LANGUAGES                                                 #
   # --------------------------------------------------------- #
   output$languagetable <- {
-    tmp <- copy(langinfo)
+    tmp4 <- copy(langinfo)
     setorder(langinfo, -itemcount)
-    setorder(tmp, -itemcount)
-    tmp[, controlled_circ:=sprintf("%.2f", controlled_circ)]
-    tmp[, percent_coll:=sprintf("%.2f%%", 100*percent_coll)]
-    tmp[, itemcount:=prettyNum(itemcount, big.mark=",")]
-    tmp[, bibcount:=prettyNum(bibcount, big.mark=",")]
-    tmp[, fy17_circ:=prettyNum(fy17_circ, big.mark=",")]
-    tmp[, fy18_circ:=prettyNum(fy18_circ, big.mark=",")]
-    tmp[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
-    tmp[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
-    tmp[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
-    tmp[, total_circ:=prettyNum(total_circ, big.mark=",")]
-    setnames(tmp, "itemcount", "Item Count")
-    setnames(tmp, "bibcount", "Bib Count")
-    setnames(tmp, "date.div", "Date Spread")
-    setnames(tmp, "fy17_circ", "FY17 Circ")
-    setnames(tmp, "fy18_circ", "FY18 Circ")
-    setnames(tmp, "fy19_circ", "FY19 Circ")
-    setnames(tmp, "fy20_circ", "FY20 Circ")
-    setnames(tmp, "fy21_circ", "FY21 Circ")
-    setnames(tmp, "total_circ", "Total Circ")
-    setnames(tmp, "controlled_circ", "Circ Per Item")
-    setnames(tmp, "percent_coll", "Percent of collection")
-    renderDT(tmp)
+    setorder(tmp4, -itemcount)
+    tmp4[, controlled_circ:=sprintf("%.2f", controlled_circ)]
+    tmp4[, percent_coll:=sprintf("%.2f%%", 100*percent_coll)]
+    tmp4[, itemcount:=prettyNum(itemcount, big.mark=",")]
+    tmp4[, bibcount:=prettyNum(bibcount, big.mark=",")]
+    tmp4[, fy17_circ:=prettyNum(fy17_circ, big.mark=",")]
+    tmp4[, fy18_circ:=prettyNum(fy18_circ, big.mark=",")]
+    tmp4[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
+    tmp4[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
+    tmp4[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
+    tmp4[, total_circ:=prettyNum(total_circ, big.mark=",")]
+    setnames(tmp4, "itemcount", "Item Count")
+    setnames(tmp4, "bibcount", "Bib Count")
+    setnames(tmp4, "date.div", "Date Spread")
+    setnames(tmp4, "fy17_circ", "FY17 Circ")
+    setnames(tmp4, "fy18_circ", "FY18 Circ")
+    setnames(tmp4, "fy19_circ", "FY19 Circ")
+    setnames(tmp4, "fy20_circ", "FY20 Circ")
+    setnames(tmp4, "fy21_circ", "FY21 Circ")
+    setnames(tmp4, "total_circ", "Total Circ")
+    setnames(tmp4, "controlled_circ", "Circ Per Item")
+    setnames(tmp4, "percent_coll", "Percent of collection")
+    renderDT(tmp4)
   }
 
   output$downloadlangrawdata <- downloadHandler(
@@ -1367,31 +1367,31 @@ server <- function(input, output) {
   # Place of publication                                      #
   # --------------------------------------------------------- #
   output$countriestable <- {
-    tmp8 <- copy(countriesinfo)
+    tmp5 <- copy(countriesinfo)
     setorder(countriesinfo, -itemcount)
-    setorder(tmp8, -itemcount)
-    tmp8[, controlled_circ:=sprintf("%.2f", controlled_circ)]
-    tmp8[, percent_coll:=sprintf("%.2f%%", 100*percent_coll)]
-    tmp8[, itemcount:=prettyNum(itemcount, big.mark=",")]
-    tmp8[, bibcount:=prettyNum(bibcount, big.mark=",")]
-    tmp8[, fy17_circ:=prettyNum(fy17_circ, big.mark=",")]
-    tmp8[, fy18_circ:=prettyNum(fy18_circ, big.mark=",")]
-    tmp8[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
-    tmp8[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
-    tmp8[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
-    tmp8[, total_circ:=prettyNum(total_circ, big.mark=",")]
-    setnames(tmp8, "itemcount", "Item Count")
-    setnames(tmp8, "bibcount", "Bib Count")
-    setnames(tmp8, "date.div", "Date Spread")
-    setnames(tmp8, "fy17_circ", "FY17 Circ")
-    setnames(tmp8, "fy18_circ", "FY18 Circ")
-    setnames(tmp8, "fy19_circ", "FY19 Circ")
-    setnames(tmp8, "fy20_circ", "FY20 Circ")
-    setnames(tmp8, "fy21_circ", "FY21 Circ")
-    setnames(tmp8, "total_circ", "Total Circ")
-    setnames(tmp8, "controlled_circ", "Circ Per Item")
-    setnames(tmp8, "percent_coll", "Percent of collection")
-    renderDT(tmp8)
+    setorder(tmp5, -itemcount)
+    tmp5[, controlled_circ:=sprintf("%.2f", controlled_circ)]
+    tmp5[, percent_coll:=sprintf("%.2f%%", 100*percent_coll)]
+    tmp5[, itemcount:=prettyNum(itemcount, big.mark=",")]
+    tmp5[, bibcount:=prettyNum(bibcount, big.mark=",")]
+    tmp5[, fy17_circ:=prettyNum(fy17_circ, big.mark=",")]
+    tmp5[, fy18_circ:=prettyNum(fy18_circ, big.mark=",")]
+    tmp5[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
+    tmp5[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
+    tmp5[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
+    tmp5[, total_circ:=prettyNum(total_circ, big.mark=",")]
+    setnames(tmp5, "itemcount", "Item Count")
+    setnames(tmp5, "bibcount", "Bib Count")
+    setnames(tmp5, "date.div", "Date Spread")
+    setnames(tmp5, "fy17_circ", "FY17 Circ")
+    setnames(tmp5, "fy18_circ", "FY18 Circ")
+    setnames(tmp5, "fy19_circ", "FY19 Circ")
+    setnames(tmp5, "fy20_circ", "FY20 Circ")
+    setnames(tmp5, "fy21_circ", "FY21 Circ")
+    setnames(tmp5, "total_circ", "Total Circ")
+    setnames(tmp5, "controlled_circ", "Circ Per Item")
+    setnames(tmp5, "percent_coll", "Percent of collection")
+    renderDT(tmp5)
   }
 
   output$downloadpubplacerawdata <- downloadHandler(
@@ -1413,33 +1413,33 @@ server <- function(input, output) {
   # LC 1                                                      #
   # --------------------------------------------------------- #
   output$lc1table <- {
-    tmp7 <- copy(lc1info)
-    setorder(tmp7, -itemcount)
-    tmp7[, controlled_circ:=sprintf("%.2f", controlled_circ)]
-    tmp7[, percent_coll:=sprintf("%.2f%%", 100*percent_coll)]
-    tmp7[, itemcount:=prettyNum(itemcount, big.mark=",")]
-    tmp7[, bibcount:=prettyNum(bibcount, big.mark=",")]
-    tmp7[, fy17_circ:=prettyNum(fy17_circ, big.mark=",")]
-    tmp7[, fy18_circ:=prettyNum(fy18_circ, big.mark=",")]
-    tmp7[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
-    tmp7[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
-    tmp7[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
-    tmp7[, total_circ:=prettyNum(total_circ, big.mark=",")]
-    setnames(tmp7, "itemcount", "Item Count")
-    setnames(tmp7, "bibcount", "Bib Count")
-    setnames(tmp7, "date.div", "Date Spread")
-    setnames(tmp7, "fy17_circ", "FY17 Circ")
-    setnames(tmp7, "fy18_circ", "FY18 Circ")
-    setnames(tmp7, "fy19_circ", "FY19 Circ")
-    setnames(tmp7, "fy20_circ", "FY20 Circ")
-    setnames(tmp7, "fy21_circ", "FY21 Circ")
-    setnames(tmp7, "total_circ", "Total Circ")
-    setnames(tmp7, "controlled_circ", "Circ Per Item")
-    setnames(tmp7, "percent_coll", "Percent of collection")
-    setnames(tmp7, "first_letter", "Letter")
-    setnames(tmp7, "lc_subject_class", "LC Subject Class")
-    tmp7[, short_desc:=NULL]
-    renderDT(tmp7)
+    tmp6 <- copy(lc1info)
+    setorder(tmp6, -itemcount)
+    tmp6[, controlled_circ:=sprintf("%.2f", controlled_circ)]
+    tmp6[, percent_coll:=sprintf("%.2f%%", 100*percent_coll)]
+    tmp6[, itemcount:=prettyNum(itemcount, big.mark=",")]
+    tmp6[, bibcount:=prettyNum(bibcount, big.mark=",")]
+    tmp6[, fy17_circ:=prettyNum(fy17_circ, big.mark=",")]
+    tmp6[, fy18_circ:=prettyNum(fy18_circ, big.mark=",")]
+    tmp6[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
+    tmp6[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
+    tmp6[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
+    tmp6[, total_circ:=prettyNum(total_circ, big.mark=",")]
+    setnames(tmp6, "itemcount", "Item Count")
+    setnames(tmp6, "bibcount", "Bib Count")
+    setnames(tmp6, "date.div", "Date Spread")
+    setnames(tmp6, "fy17_circ", "FY17 Circ")
+    setnames(tmp6, "fy18_circ", "FY18 Circ")
+    setnames(tmp6, "fy19_circ", "FY19 Circ")
+    setnames(tmp6, "fy20_circ", "FY20 Circ")
+    setnames(tmp6, "fy21_circ", "FY21 Circ")
+    setnames(tmp6, "total_circ", "Total Circ")
+    setnames(tmp6, "controlled_circ", "Circ Per Item")
+    setnames(tmp6, "percent_coll", "Percent of collection")
+    setnames(tmp6, "first_letter", "Letter")
+    setnames(tmp6, "lc_subject_class", "LC Subject Class")
+    tmp6[, short_desc:=NULL]
+    renderDT(tmp6)
   }
 
   output$downloadlc1rawdata <- downloadHandler(
@@ -1476,32 +1476,32 @@ server <- function(input, output) {
   # LC 2                                                      #
   # --------------------------------------------------------- #
   output$lc2table <- {
-    tmp8 <- copy(lc2info)
-    setorder(tmp8, -itemcount)
-    tmp8[, controlled_circ:=sprintf("%.2f", controlled_circ)]
-    tmp8[, percent_coll:=sprintf("%.2f%%", 100*percent_coll)]
-    tmp8[, itemcount:=prettyNum(itemcount, big.mark=",")]
-    tmp8[, bibcount:=prettyNum(bibcount, big.mark=",")]
-    tmp8[, fy17_circ:=prettyNum(fy17_circ, big.mark=",")]
-    tmp8[, fy18_circ:=prettyNum(fy18_circ, big.mark=",")]
-    tmp8[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
-    tmp8[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
-    tmp8[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
-    tmp8[, total_circ:=prettyNum(total_circ, big.mark=",")]
-    setnames(tmp8, "itemcount", "Item Count")
-    setnames(tmp8, "bibcount", "Bib Count")
-    setnames(tmp8, "date.div", "Date Spread")
-    setnames(tmp8, "fy17_circ", "FY17 Circ")
-    setnames(tmp8, "fy18_circ", "FY18 Circ")
-    setnames(tmp8, "fy19_circ", "FY19 Circ")
-    setnames(tmp8, "fy20_circ", "FY20 Circ")
-    setnames(tmp8, "fy21_circ", "FY21 Circ")
-    setnames(tmp8, "total_circ", "Total Circ")
-    setnames(tmp8, "controlled_circ", "Circ Per Item")
-    setnames(tmp8, "percent_coll", "Percent of collection")
-    setnames(tmp8, "all_letters", "Letters")
-    setnames(tmp8, "lc_subject_subclass", "LC Subject Subclass")
-    renderDT(tmp8)
+    tmp7 <- copy(lc2info)
+    setorder(tmp7, -itemcount)
+    tmp7[, controlled_circ:=sprintf("%.2f", controlled_circ)]
+    tmp7[, percent_coll:=sprintf("%.2f%%", 100*percent_coll)]
+    tmp7[, itemcount:=prettyNum(itemcount, big.mark=",")]
+    tmp7[, bibcount:=prettyNum(bibcount, big.mark=",")]
+    tmp7[, fy17_circ:=prettyNum(fy17_circ, big.mark=",")]
+    tmp7[, fy18_circ:=prettyNum(fy18_circ, big.mark=",")]
+    tmp7[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
+    tmp7[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
+    tmp7[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
+    tmp7[, total_circ:=prettyNum(total_circ, big.mark=",")]
+    setnames(tmp7, "itemcount", "Item Count")
+    setnames(tmp7, "bibcount", "Bib Count")
+    setnames(tmp7, "date.div", "Date Spread")
+    setnames(tmp7, "fy17_circ", "FY17 Circ")
+    setnames(tmp7, "fy18_circ", "FY18 Circ")
+    setnames(tmp7, "fy19_circ", "FY19 Circ")
+    setnames(tmp7, "fy20_circ", "FY20 Circ")
+    setnames(tmp7, "fy21_circ", "FY21 Circ")
+    setnames(tmp7, "total_circ", "Total Circ")
+    setnames(tmp7, "controlled_circ", "Circ Per Item")
+    setnames(tmp7, "percent_coll", "Percent of collection")
+    setnames(tmp7, "all_letters", "Letters")
+    setnames(tmp7, "lc_subject_subclass", "LC Subject Subclass")
+    renderDT(tmp7)
   }
 
   output$downloadlc2rawdata <- downloadHandler(
@@ -1528,11 +1528,11 @@ server <- function(input, output) {
   })
 
   output$sanddlangtable <- {
-    tmp10 <- copy(sanddlang)
-    tmp10 <- tmp10[lang!="TOTAL"]
-    setnames(tmp10, "lang", "language")
-    setorder(tmp10, -count)
-    renderDT(tmp10)
+    tmp8 <- copy(sanddlang)
+    tmp8 <- tmp8[lang!="TOTAL"]
+    setnames(tmp8, "lang", "language")
+    setorder(tmp8, -count)
+    renderDT(tmp8)
   }
 
   output$downloadsanddlangrawdata <- downloadHandler(
@@ -1543,10 +1543,10 @@ server <- function(input, output) {
   )
 
   output$sanddlc1table <- {
-    tmp11 <- copy(sanddlc1)
-    tmp11 <- tmp11[subject_classification!="TOTAL"]
-    setorder(tmp11, -count)
-    renderDT(tmp11)
+    tmp10 <- copy(sanddlc1)
+    tmp10 <- tmp10[subject_classification!="TOTAL"]
+    setorder(tmp10, -count)
+    renderDT(tmp10)
   }
 
   output$downloadsanddlc1rawdata <- downloadHandler(
