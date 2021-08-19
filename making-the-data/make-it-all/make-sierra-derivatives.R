@@ -291,7 +291,7 @@ countryinfo %>% fwrite_plus_date("./target/countryinfo.dat")
 # -----------            CENTER/LOCATION         -----------------#
 # --------------------------------------------------------------- #
 
-locxwalk <- fread("../../crosswalks/locationxwalk.dat")
+locxwalk <- fread("../../crosswalks/locationxwalk.tsv")
 setkey(locxwalk, "location_code")
 
 setkey(dat, "item_location_code")
