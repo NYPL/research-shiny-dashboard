@@ -291,7 +291,8 @@ countryinfo %>% fwrite_plus_date("./target/countryinfo.dat")
 # -----------            CENTER/LOCATION         -----------------#
 # --------------------------------------------------------------- #
 
-locxwalk <- readRDS("../../crosswalks/locationxwalk.datatable")
+locxwalk <- fread("../../crosswalks/locationxwalk.dat")
+setkey(locxwalk, "location_code")
 
 setkey(dat, "item_location_code")
 
