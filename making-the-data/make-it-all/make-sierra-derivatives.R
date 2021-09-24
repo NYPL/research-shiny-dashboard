@@ -67,6 +67,7 @@ dat[, .(itemcount=.N,
         fy19_circ=sum(fy19_checkouts, na.rm=TRUE),
         fy20_circ=sum(fy20_checkouts, na.rm=TRUE),
         fy21_circ=sum(fy21_checkouts, na.rm=TRUE),
+        fy22_circ=sum(fy22_checkouts, na.rm=TRUE),
         total_circ=sum(total_circ, na.rm=TRUE)),
    .(langcode, lang)]                               -> langinfo
 
@@ -126,6 +127,7 @@ tmp[, .(itemcount=.N,
         fy19_circ=sum(fy19_checkouts, na.rm=TRUE),
         fy20_circ=sum(fy20_checkouts, na.rm=TRUE),
         fy21_circ=sum(fy21_checkouts, na.rm=TRUE),
+        fy22_circ=sum(fy22_checkouts, na.rm=TRUE),
         total_circ=sum(total_circ, na.rm=TRUE)),
    .(first_letter, lc_subject_class)]                 -> lc1info
 
@@ -171,6 +173,7 @@ tmp[, .(itemcount=.N,
         fy19_circ=sum(fy19_checkouts, na.rm=TRUE),
         fy20_circ=sum(fy20_checkouts, na.rm=TRUE),
         fy21_circ=sum(fy21_checkouts, na.rm=TRUE),
+        fy22_circ=sum(fy22_checkouts, na.rm=TRUE),
         total_circ=sum(total_circ, na.rm=TRUE)),
    .(all_letters, lc_subject_subclass)]                   -> lc2info
 
@@ -243,6 +246,7 @@ dat[, .(itemcount=.N,
         fy19_circ=sum(fy19_checkouts, na.rm=TRUE),
         fy20_circ=sum(fy20_checkouts, na.rm=TRUE),
         fy21_circ=sum(fy21_checkouts, na.rm=TRUE),
+        fy22_circ=sum(fy22_checkouts, na.rm=TRUE),
         total_circ=sum(total_circ, na.rm=TRUE)),
    .(countrycode, country)]                    -> countryinfo
 
@@ -256,6 +260,7 @@ countryinfo[, .(itemcount=sum(itemcount),
                 fy19_circ=sum(fy19_circ),
                 fy20_circ=sum(fy20_circ),
                 fy21_circ=sum(fy21_circ),
+                fy22_circ=sum(fy22_circ),
                 total_circ=sum(total_circ)),
   country]                                    -> countryinfo
 
@@ -384,6 +389,10 @@ add.to.build.a.count("gen_info", "fy20circ",
 add.to.build.a.count("gen_info", "fy21circ",
                      sprintf("%d", dat[, sum(fy21_checkouts, na.rm=TRUE)]),
                      "Total check-outs in FY21")
+
+add.to.build.a.count("gen_info", "fy22circ",
+                     sprintf("%d", dat[, sum(fy21_checkouts, na.rm=TRUE)]),
+                     "Total check-outs in FY22")
 
 build.a.count <- build.a.count[dacat!=""]
 

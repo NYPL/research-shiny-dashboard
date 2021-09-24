@@ -10,95 +10,14 @@ library(DT)
 library(ggplot2)
 library(forecast)
 library(glue)
+library(plotly)
+library(libbib)
 
 
 options(warn=1)
 options(scipen=20)
 
 
-
-###### TEMPORARY #################################
-###### TEMPORARY #################################
-### this is temporary until libbib >= v1.6.2
-### is on CRAN
-
-set_lb_attribute <- function(x, type, value){
-  setattr(x, sprintf("lb.%s", type), value)
-}
-
-set_lb_date <- function(x, value){
-  if("Date" %chin% class(value))
-    set_lb_attribute(x, "date", value)
-  else
-    set_lb_attribute(x, "date", as.Date(value))
-}
-
-cp_lb_attributes <- function(a, b){
-  tmp <- names(attributes(a))
-  tmp <- stringr::str_subset(tmp, "^lb\\.")
-  invisible(sapply(tmp, function(x) setattr(b, x, attr(a, x))))
-}
-
-split_extension <- function(fname){
-  if(length(fname)>1) stop("only takes one filename")
-  dirpart <- sprintf("%s/", dirname(fname))
-  if(dirpart=="./") dirpart <- ""
-  basepart <- basename(fname)
-  pieces <- stringr::str_split(basepart, "\\.", n=2)
-  before_ext <- pieces[[1]][1]
-  after_ext <- pieces[[1]][2]
-  if(!is.na(after_ext)) after_ext <- sprintf(".%s", after_ext)
-  if(is.na(before_ext) & is.na(after_ext)) stop("couldn't split extension")
-  c(sprintf("%s%s", dirpart, before_ext), after_ext)
-}
-
-fread_plus_helper <- function(fname){
-  pieces <- split_extension(fname)
-  file.match <- Sys.glob(sprintf("%s*%s", pieces[1], pieces[2]))
-  if(length(file.match)==0) stop("no matching filename")
-  if(length(file.match)>1){
-    tmp <- sprintf("\n  %s", paste(file.match, collapse=", "))
-    stop("more than one matching file: ", tmp)
-  }
-  # will use the native pipe operator when everone uses > R v4.1
-  plus.part <- stringr::str_replace(file.match, sprintf("^%s\\D*", pieces[1]), "")
-  plus.part <- stringr::str_replace(plus.part,  sprintf("\\D*%s$", pieces[2]), "")
-
-  list(matching_filename=file.match,
-       given_filename=fname,
-       plus_part=plus.part,
-       before_ext=pieces[1],
-       after_ext=pieces[2])
-}
-
-fread_plus_date <- function(fname, allow.fallback.date=TRUE, ...){
-  dat <- NULL
-  helper.ret  <- fread_plus_helper(fname)
-  already.date <- stringr::str_extract(helper.ret$before_ext,
-                                       "\\d{4}-\\d{2}-\\d{2}$")
-  if(!is.na(already.date)){
-    # already has the date in the filename
-    fname.to.use <- fname
-    thedate <- as.Date(already.date)
-  } else{
-    # doesn't already have the date in the filename
-    fname.to.use <- helper.ret$matching_filename
-    plus_part <- helper.ret$plus_part
-    if(plus_part==""){
-      if(!allow.fallback.date)
-        stop("no date in filename found")
-      message("no date in filename found... using today's date")
-      thedate <- Sys.Date()
-    } else {
-      thedate <- as.Date(plus_part)
-    }
-  }
-  dat <- fread(fname.to.use, ...)
-  set_lb_attribute(dat, "date", thedate)
-  dat
-}
-###### END TEMPORARY #############################
-###### END TEMPORARY #############################
 
 
 # --------------------------------------------------------- #
@@ -256,7 +175,6 @@ set_lb_attribute(ezprox1, "note", "derived from the data product produced by htt
 
 # --------------------------------------------------------- #
 # --------------------------------------------------------- #
-
 
 
 #############################################################
@@ -890,7 +808,7 @@ body <- dashboardBody(
                        solidHeader = TRUE,
                        status="primary",
                        collapsible = TRUE,
-                       plotOutput("sanddreqsplot"),
+                       plotlyOutput("sanddreqsplot"),
                        width=12,
                      ),
               ),
@@ -1005,7 +923,7 @@ body <- dashboardBody(
                        solidHeader = TRUE,
                        status="primary",
                        collapsible = TRUE,
-                       plotOutput("ezuniqsessionsplot"),
+                       plotlyOutput("ezuniqsessionsplot"),
                        width=12,
                      ),
               ),
@@ -1516,15 +1434,16 @@ server <- function(input, output) {
   # --------------------------------------------------------- #
   # Scan and deliver                                          #
   # --------------------------------------------------------- #
-  output$sanddreqsplot <- renderPlot({
+  output$sanddreqsplot <- renderPlotly({
     tmpdata <- sandddaily
     if(input$sanddfreqopt=="Weekly")
       tmpdata <- sanddweekly
     tmpfn <- ifelse(input$sanddsmoothp=="Yes", geom_smooth, geom_line)
     tmpxlab <- ifelse(input$sanddfreqopt=="Weekly", "week", "date")
-    ggplot(tmpdata[center==input$sanddcenteropt], aes(x=thetime, y=total)) +
+    p <- ggplot(tmpdata[center==input$sanddcenteropt], aes(x=thetime, y=total)) +
       tmpfn(size=1.4, color="blue", alpha=0.6) +
       xlab(tmpxlab)
+    ggplotly(p)
   })
 
   output$sanddlangtable <- {
@@ -1562,17 +1481,18 @@ server <- function(input, output) {
   # EZ Proxy
   # --------------------------------------------------------- #
 
-  output$ezuniqsessionsplot <- renderPlot({
+  output$ezuniqsessionsplot <- renderPlotly({
     toplimit <- input$eztopvendors
     lowerbound <- ifelse(input$eztotalp=="Yes", 0, 1)
     tmpfn <- ifelse(input$ezsmoothp=="Yes",
                     function(x){geom_smooth(method="gam")},
                     geom_line)
-    ggplot(ezprox1[venrank<=toplimit & venrank>=lowerbound],
-           aes(x=just_date, y=unique_sessions, group=vendor,
-               color=vendor, fill=vendor)) +
+    p <- ggplot(ezprox1[venrank<=toplimit & venrank>=lowerbound],
+                aes(x=just_date, y=unique_sessions,
+                    color=vendor)) +
       tmpfn() +
       xlab("date") + ylab("number of unique sessions")
+    ggplotly(p)
   })
 
   # --------------------------------------------------------- #
