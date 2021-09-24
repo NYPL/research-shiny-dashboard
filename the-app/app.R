@@ -1234,6 +1234,7 @@ server <- function(input, output) {
     tmp4[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
     tmp4[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
     tmp4[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
+    tmp4[, fy22_circ:=prettyNum(fy22_circ, big.mark=",")]
     tmp4[, total_circ:=prettyNum(total_circ, big.mark=",")]
     setnames(tmp4, "itemcount", "Item Count")
     setnames(tmp4, "bibcount", "Bib Count")
@@ -1243,6 +1244,7 @@ server <- function(input, output) {
     setnames(tmp4, "fy19_circ", "FY19 Circ")
     setnames(tmp4, "fy20_circ", "FY20 Circ")
     setnames(tmp4, "fy21_circ", "FY21 Circ")
+    setnames(tmp4, "fy22_circ", "FY22 Circ")
     setnames(tmp4, "total_circ", "Total Circ")
     setnames(tmp4, "controlled_circ", "Circ Per Item")
     setnames(tmp4, "percent_coll", "Percent of collection")
@@ -1297,6 +1299,7 @@ server <- function(input, output) {
     tmp5[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
     tmp5[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
     tmp5[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
+    tmp5[, fy22_circ:=prettyNum(fy22_circ, big.mark=",")]
     tmp5[, total_circ:=prettyNum(total_circ, big.mark=",")]
     setnames(tmp5, "itemcount", "Item Count")
     setnames(tmp5, "bibcount", "Bib Count")
@@ -1306,6 +1309,7 @@ server <- function(input, output) {
     setnames(tmp5, "fy19_circ", "FY19 Circ")
     setnames(tmp5, "fy20_circ", "FY20 Circ")
     setnames(tmp5, "fy21_circ", "FY21 Circ")
+    setnames(tmp5, "fy22_circ", "FY22 Circ")
     setnames(tmp5, "total_circ", "Total Circ")
     setnames(tmp5, "controlled_circ", "Circ Per Item")
     setnames(tmp5, "percent_coll", "Percent of collection")
@@ -1342,6 +1346,7 @@ server <- function(input, output) {
     tmp6[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
     tmp6[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
     tmp6[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
+    tmp6[, fy22_circ:=prettyNum(fy22_circ, big.mark=",")]
     tmp6[, total_circ:=prettyNum(total_circ, big.mark=",")]
     setnames(tmp6, "itemcount", "Item Count")
     setnames(tmp6, "bibcount", "Bib Count")
@@ -1351,6 +1356,7 @@ server <- function(input, output) {
     setnames(tmp6, "fy19_circ", "FY19 Circ")
     setnames(tmp6, "fy20_circ", "FY20 Circ")
     setnames(tmp6, "fy21_circ", "FY21 Circ")
+    setnames(tmp6, "fy22_circ", "FY22 Circ")
     setnames(tmp6, "total_circ", "Total Circ")
     setnames(tmp6, "controlled_circ", "Circ Per Item")
     setnames(tmp6, "percent_coll", "Percent of collection")
@@ -1405,6 +1411,7 @@ server <- function(input, output) {
     tmp7[, fy19_circ:=prettyNum(fy19_circ, big.mark=",")]
     tmp7[, fy20_circ:=prettyNum(fy20_circ, big.mark=",")]
     tmp7[, fy21_circ:=prettyNum(fy21_circ, big.mark=",")]
+    tmp7[, fy22_circ:=prettyNum(fy22_circ, big.mark=",")]
     tmp7[, total_circ:=prettyNum(total_circ, big.mark=",")]
     setnames(tmp7, "itemcount", "Item Count")
     setnames(tmp7, "bibcount", "Bib Count")
@@ -1414,6 +1421,7 @@ server <- function(input, output) {
     setnames(tmp7, "fy19_circ", "FY19 Circ")
     setnames(tmp7, "fy20_circ", "FY20 Circ")
     setnames(tmp7, "fy21_circ", "FY21 Circ")
+    setnames(tmp7, "fy22_circ", "FY22 Circ")
     setnames(tmp7, "total_circ", "Total Circ")
     setnames(tmp7, "controlled_circ", "Circ Per Item")
     setnames(tmp7, "percent_coll", "Percent of collection")
