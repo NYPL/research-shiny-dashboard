@@ -1449,7 +1449,7 @@ server <- function(input, output) {
     tmpfn <- ifelse(input$sanddsmoothp=="Yes", geom_smooth, geom_line)
     tmpxlab <- ifelse(input$sanddfreqopt=="Weekly", "week", "date")
     p <- ggplot(tmpdata[center==input$sanddcenteropt], aes(x=thetime, y=total)) +
-      tmpfn(size=1.4, color="blue", alpha=0.6) +
+      tmpfn(size=0.7, color="blue", alpha=0.6) +
       xlab(tmpxlab)
     ggplotly(p)
   })
