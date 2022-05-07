@@ -42,7 +42,10 @@ justincase <- copy(dat)
 
 dat[, .N]
 # dat %>% verify(nrow(.) >= 10895556, success_fun=success_report) # 2020-07-28
-dat %>% verify(nrow(.) >= 10888765, success_fun=success_report) # 2021-04-08
+# dat %>% verify(nrow(.) >= 10888765, success_fun=success_report) # 2021-04-08
+dat %>% verify(nrow(.) >= 11079697, success_fun=success_report) # 2022-04-30
+
+
 
 
 

@@ -54,16 +54,30 @@ setkey(venrank, "vendor")
 setkey(short, "vendor")
 uniq_sessions_by_dates_and_vendor <- venrank[venrank<31][short, nomatch=NULL]
 
-# totals
-totals <- allez[, .(vendor="TOTAL", venrank=0, unique_sessions=uniqueN(session)), just_date]
-uniq_sessions_by_dates_and_vendor <- rbind(uniq_sessions_by_dates_and_vendor, totals)
+
 
 # this is unprincipled, but I have no choice (anomaly)
 uniq_sessions_by_dates_and_vendor[vendor=="proquest" & unique_sessions>1000, unique_sessions:=700]
 
+
+# ok, we have to fix this for all vendors (Fri 06 May 2022 02:26:30 PM EDT)
+uniq_sessions_by_dates_and_vendor[, fake:=shift(unique_sessions, 7), vendor]
+uniq_sessions_by_dates_and_vendor[just_date >= as.Date("2021-07-31") &
+                                    just_date <= as.Date("2021-08-04"),
+                                  unique_sessions:=fake]
+uniq_sessions_by_dates_and_vendor[, fake:=NULL]
+
+
+# totals
+totals <- allez[, .(vendor="TOTAL", venrank=0, unique_sessions=uniqueN(session)), just_date]
+uniq_sessions_by_dates_and_vendor <- rbind(uniq_sessions_by_dates_and_vendor, totals)
+
+
+
 cp_lb_attributes(allez, uniq_sessions_by_dates_and_vendor)
 uniq_sessions_by_dates_and_vendor %>%
   fwrite_plus_date("./target/ezproxy-vendor-dates.dat")
+
 
 
 ### ptype distribution

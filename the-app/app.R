@@ -87,7 +87,7 @@ make_small <- function(text, small=3){
 
 # - will be deprecated
 nicecenterinfo <- fread_plus_date("./data/nice-wmr-and-lair-quarterly-stats.txt",
-                                  sep="\t", header=TRUE)
+                                  , header=TRUE)
 set_lb_attribute(nicecenterinfo, "source",
                  glue('<br>{make_link("http://ilsstaff.nypl.org/iii/webrpt/UserLogin.html")} and<br>{make_link("https://cap.apps.nypl.org/do/rs_viewers/view_readers_materials")}'))
 setorder(nicecenterinfo, FY, quarter)
@@ -101,36 +101,36 @@ cp_lb_attributes(nicecenterinfo, niceyeartotals)
 # ---
 
 recapgeninfo <- fread_plus_date("./data/recap-gen-info.dat",
-                                sep="\t", header=TRUE)
+                                , header=TRUE)
 set_lb_attribute(recapgeninfo, "source", "SCSB MARCXml export")
 set_lb_attribute(recapgeninfo, "note", glue('derived from data substrate from {make_link("https://github.com/recap-assessment-team/compile-recap-stats")}'))
 
 # ---
 
-visitinfo <- fread_plus_date("./data/visits-by-quarter.dat", sep="\t", header=TRUE)
+visitinfo <- fread_plus_date("./data/visits-by-quarter.dat", header=TRUE)
 set_lb_attribute(visitinfo, "source", "https://lair.nypl.org/-/departments/library-sites-and-services/research-libraries/view-statistics")
 set_lb_attribute(visitinfo, "note", "this source of data is now deprecated")
 
 # ---
 
-geninfo <- fread_plus_date("./data/gen-info.dat", sep="\t", header=TRUE)
+geninfo <- fread_plus_date("./data/gen-info.dat", header=TRUE)
 set_lb_attribute(geninfo, "source", "Sierra shadow database")
 set_lb_attribute(geninfo, "note", glue('derived from the data product produced by {make_link("https://github.com/NYPL/sierra-shadow-dataset")}'))
-langinfo <- fread_plus_date("./data/langinfo.dat", sep="\t", header=TRUE)
+langinfo <- fread_plus_date("./data/langinfo.dat", header=TRUE)
 cp_lb_attributes(geninfo, langinfo)
-langnorm <- fread_plus_date("./data/langnorm.dat", sep="\t", header=TRUE)
+langnorm <- fread_plus_date("./data/langnorm.dat", header=TRUE)
 cp_lb_attributes(geninfo, langnorm)
-locationinfo <- fread_plus_date("./data/centerinfo.dat", sep="\t", header=TRUE)
+locationinfo <- fread_plus_date("./data/centerinfo.dat", header=TRUE)
 cp_lb_attributes(geninfo, locationinfo)
-mattypeinfo <- fread_plus_date("./data/xmattype.dat", sep="\t", header=TRUE)
+mattypeinfo <- fread_plus_date("./data/xmattype.dat", header=TRUE)
 cp_lb_attributes(geninfo, mattypeinfo)
-biblevelinfo <- fread_plus_date("./data/xbiblevel.dat", sep="\t", header=TRUE)
+biblevelinfo <- fread_plus_date("./data/xbiblevel.dat", header=TRUE)
 cp_lb_attributes(geninfo, biblevelinfo)
-countriesinfo  <- fread_plus_date("./data/countryinfo.dat", sep="\t", header=TRUE)
+countriesinfo  <- fread_plus_date("./data/countryinfo.dat", header=TRUE)
 cp_lb_attributes(geninfo, countriesinfo)
-locationinfo <- fread_plus_date("./data/centerinfo.dat", sep="\t", header=TRUE)
+locationinfo <- fread_plus_date("./data/centerinfo.dat", header=TRUE)
 cp_lb_attributes(geninfo, locationinfo)
-lc1info <- fread_plus_date("./data/lc1-info.dat", sep="\t", header=TRUE)
+lc1info <- fread_plus_date("./data/lc1-info.dat", header=TRUE)
 cp_lb_attributes(geninfo, lc1info)
 lc1info[, short_desc:=ifelse(str_length(lc1info[, lc_subject_class])>20,
                              sprintf("(%s) %s...",
@@ -139,7 +139,7 @@ lc1info[, short_desc:=ifelse(str_length(lc1info[, lc_subject_class])>20,
                              sprintf("(%s) %s",
                                      lc1info[, first_letter],
                                      lc1info[, lc_subject_class]))]
-lc1norm <- fread_plus_date("./data/lc1-norm.dat", sep="\t", header=TRUE)
+lc1norm <- fread_plus_date("./data/lc1-norm.dat", header=TRUE)
 cp_lb_attributes(geninfo, lc1norm)
 lc1norm[, short_desc:=ifelse(str_length(lc1norm[, lc_subject_class])>20,
                              sprintf("(%s) %s...",
@@ -148,28 +148,28 @@ lc1norm[, short_desc:=ifelse(str_length(lc1norm[, lc_subject_class])>20,
                              sprintf("(%s) %s",
                                      lc1norm[, first_letter],
                                      lc1norm[, lc_subject_class]))]
-lc2info <- fread_plus_date("./data/lc2-info.dat", sep="\t", header=TRUE)
+lc2info <- fread_plus_date("./data/lc2-info.dat", header=TRUE)
 cp_lb_attributes(geninfo, lc2info)
 
 # ---
 
-sandddaily  <- fread_plus_date("./data/scan-and-deliver-daily.dat", sep='\t', header=TRUE)
+sandddaily  <- fread_plus_date("./data/scan-and-deliver-daily.dat", header=TRUE)
 setnames(sandddaily, "xdate", "thetime")
 set_lb_attribute(sandddaily, "source", "https://docs.google.com/spreadsheets/d/13zzPYWSM4YTeBfApgVdgdpEZWaIdk_Bu2io5JQqS0KY/edit#gid=0")
 set_lb_attribute(sandddaily, "note", "derived from the data product produced by https://github.com/NYPL/scan-and-deliver-stats")
-sanddweekly <- fread_plus_date("./data/scan-and-deliver-weekly.dat", sep='\t', header=TRUE)
+sanddweekly <- fread_plus_date("./data/scan-and-deliver-weekly.dat", header=TRUE)
 setnames(sanddweekly, "xdate", "thetime")
 cp_lb_attributes(sandddaily, sanddweekly)
 sanddlang <- fread_plus_date("./data/scan-and-deliver-language-breakdown.dat",
-                             sep="\t", header=TRUE)
+                             header=TRUE)
 cp_lb_attributes(sandddaily, sanddlang)
 sanddlc1 <- fread_plus_date("./data/scan-and-deliver-subject-classification-breakdown.dat",
-                            sep="\t", header=TRUE)
+                            header=TRUE)
 cp_lb_attributes(sandddaily, sanddlc1)
 
 # ---
 
-ezprox1 <- fread_plus_date("./data/ezproxy-vendor-dates.dat", sep='\t', header=TRUE)
+ezprox1 <- fread_plus_date("./data/ezproxy-vendor-dates.dat", header=TRUE)
 set_lb_attribute(ezprox1, "source", "raw HTTP logs from EZ-Proxy Web Server")
 set_lb_attribute(ezprox1, "note", "derived from the data product produced by https://github.com/NYPL/ezproxy-stats")
 
