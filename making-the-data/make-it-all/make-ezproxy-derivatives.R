@@ -44,6 +44,8 @@ allez <- rbindlist(lapply(allez,
 setorder(allez, just_date)
 set_lb_date(allez, allez[.N, just_date])
 
+allez[vendor=="chicagomanuakofstyle", vendor:="chicagomanualofstyle"]
+
 
 allez <- allez[!(vendor %chin% c("ezproxy", "google")) & !is.na(vendor)]
 short <- allez[, .(unique_sessions=uniqueN(session)), .(just_date, vendor)]
@@ -52,7 +54,9 @@ short[, sum(unique_sessions), vendor][
   order(-V1)][, .(vendor, venrank=frank(-V1, ties.method="first"))] -> venrank
 setkey(venrank, "vendor")
 setkey(short, "vendor")
-uniq_sessions_by_dates_and_vendor <- venrank[venrank<31][short, nomatch=NULL]
+# uniq_sessions_by_dates_and_vendor <- venrank[venrank<31][short, nomatch=NULL]
+# Mon 09 May 2022 03:03:43 PM EDT - no longer doing cutoff
+uniq_sessions_by_dates_and_vendor <- venrank[short, nomatch=NULL]
 
 
 
@@ -66,6 +70,12 @@ uniq_sessions_by_dates_and_vendor[just_date >= as.Date("2021-07-31") &
                                     just_date <= as.Date("2021-08-04"),
                                   unique_sessions:=fake]
 uniq_sessions_by_dates_and_vendor[, fake:=NULL]
+
+
+## FOR T.M.
+# uniq_sessions_by_dates_and_vendor %>%
+#   dcast(just_date ~ vendor, value.var="unique_sessions", fill=0) %>%
+#   fwrite("~/Desktop/for-TM.tsv", sep="\t")
 
 
 # totals
